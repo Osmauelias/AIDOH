@@ -93,7 +93,7 @@ async function createLead(c: Context) {
 }
 
 async function listLeads(c: Context) {
-  const adminKey = process.env.ADMIN_KEY;
+  const adminKey = (c.env as { ADMIN_KEY?: string } | undefined)?.ADMIN_KEY;
   if (!adminKey || c.req.header("X-Admin-Key") !== adminKey) {
     return c.json(apiFailure("UNAUTHORIZED", "Admin key required"), 401);
   }
