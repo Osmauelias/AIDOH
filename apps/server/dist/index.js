@@ -3,11 +3,12 @@ import { createServer } from "http";
 import { Http2ServerRequest, constants } from "http2";
 import { Readable } from "stream";
 import crypto$1 from "crypto";
+import fs, { readdirSync } from "node:fs";
+import path, { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { randomBytes, scrypt } from "node:crypto";
-import fs from "node:fs";
 import fsPromises from "node:fs/promises";
 import os from "node:os";
-import path from "node:path";
 var __create = Object.create;
 var __defProp$2 = Object.defineProperty;
 var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
@@ -434,7 +435,7 @@ var responseViaResponseObject = async (res, outgoing, options = {}) => {
 				});
 				if (!chunk) {
 					if (i === 1) {
-						await new Promise((resolve) => setTimeout(resolve));
+						await new Promise((resolve$1) => setTimeout(resolve$1));
 						maxReadCount = 3;
 						continue;
 					}
@@ -3298,7 +3299,7 @@ async function cbcEncrypt(enc$1, plaintext, cek, iv, aad) {
 		iv
 	};
 }
-async function timingSafeEqual(a, b) {
+async function timingSafeEqual$1(a, b) {
 	if (!(a instanceof Uint8Array)) throw new TypeError("First argument must be a buffer");
 	if (!(b instanceof Uint8Array)) throw new TypeError("Second argument must be a buffer");
 	const algorithm$1 = {
@@ -3318,7 +3319,7 @@ async function cbcDecrypt(enc$1, cek, ciphertext, iv, tag$1, aad) {
 	const expectedTag = await cbcHmacTag(macKey, concat$2(aad, iv, ciphertext, uint64be(aad.length << 3)), keySize);
 	let macCheckPassed;
 	try {
-		macCheckPassed = await timingSafeEqual(tag$1, expectedTag);
+		macCheckPassed = await timingSafeEqual$1(tag$1, expectedTag);
 	} catch {}
 	if (!macCheckPassed) throw new JWEDecryptionFailed();
 	let plaintext;
@@ -3765,8 +3766,8 @@ var handleKeyObject = (keyObject, alg$1) => {
 	cache$1 ||= /* @__PURE__ */ new WeakMap();
 	let cached$1 = cache$1.get(keyObject);
 	if (cached$1?.[alg$1]) return cached$1[alg$1];
-	const isPublic = keyObject.type === "public";
-	const extractable = isPublic ? true : false;
+	const isPublic$3 = keyObject.type === "public";
+	const extractable = isPublic$3 ? true : false;
 	let cryptoKey;
 	if (keyObject.asymmetricKeyType === "x25519") {
 		switch (alg$1) {
@@ -3776,18 +3777,18 @@ var handleKeyObject = (keyObject, alg$1) => {
 			case "ECDH-ES+A256KW": break;
 			default: throw new TypeError(unusableForAlg);
 		}
-		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, isPublic ? [] : ["deriveBits"]);
+		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, isPublic$3 ? [] : ["deriveBits"]);
 	}
 	if (keyObject.asymmetricKeyType === "ed25519") {
 		if (alg$1 !== "EdDSA" && alg$1 !== "Ed25519") throw new TypeError(unusableForAlg);
-		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic ? "verify" : "sign"]);
+		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic$3 ? "verify" : "sign"]);
 	}
 	switch (keyObject.asymmetricKeyType) {
 		case "ml-dsa-44":
 		case "ml-dsa-65":
 		case "ml-dsa-87":
 			if (alg$1 !== keyObject.asymmetricKeyType.toUpperCase()) throw new TypeError(unusableForAlg);
-			cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic ? "verify" : "sign"]);
+			cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic$3 ? "verify" : "sign"]);
 	}
 	if (keyObject.asymmetricKeyType === "rsa") {
 		let hash$1;
@@ -3815,11 +3816,11 @@ var handleKeyObject = (keyObject, alg$1) => {
 		if (alg$1.startsWith("RSA-OAEP")) return keyObject.toCryptoKey({
 			name: "RSA-OAEP",
 			hash: hash$1
-		}, extractable, isPublic ? ["encrypt"] : ["decrypt"]);
+		}, extractable, isPublic$3 ? ["encrypt"] : ["decrypt"]);
 		cryptoKey = keyObject.toCryptoKey({
 			name: alg$1.startsWith("PS") ? "RSA-PSS" : "RSASSA-PKCS1-v1_5",
 			hash: hash$1
-		}, extractable, [isPublic ? "verify" : "sign"]);
+		}, extractable, [isPublic$3 ? "verify" : "sign"]);
 	}
 	if (keyObject.asymmetricKeyType === "ec") {
 		const namedCurve = new Map([
@@ -3836,11 +3837,11 @@ var handleKeyObject = (keyObject, alg$1) => {
 		if (expectedCurve[alg$1] && namedCurve === expectedCurve[alg$1]) cryptoKey = keyObject.toCryptoKey({
 			name: "ECDSA",
 			namedCurve
-		}, extractable, [isPublic ? "verify" : "sign"]);
+		}, extractable, [isPublic$3 ? "verify" : "sign"]);
 		if (alg$1.startsWith("ECDH-ES")) cryptoKey = keyObject.toCryptoKey({
 			name: "ECDH",
 			namedCurve
-		}, extractable, isPublic ? [] : ["deriveBits"]);
+		}, extractable, isPublic$3 ? [] : ["deriveBits"]);
 	}
 	if (!cryptoKey) throw new TypeError(unusableForAlg);
 	if (!cached$1) cache$1.set(keyObject, { [alg$1]: cryptoKey });
@@ -20662,8 +20663,8 @@ var createInternalAdapter = (adapter, ctx) => {
 	async function withVerificationConsumeLock(key, fn) {
 		const previous = verificationConsumeLocks.get(key) ?? Promise.resolve();
 		let release;
-		const current = new Promise((resolve) => {
-			release = resolve;
+		const current = new Promise((resolve$1) => {
+			release = resolve$1;
 		});
 		const next = previous.catch(() => {}).then(() => current);
 		verificationConsumeLocks.set(key, next);
@@ -23502,7 +23503,7 @@ var config = {
 	dkLen: 64
 };
 function generateKey(password, salt) {
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve$1, reject) => {
 		scrypt(password.normalize("NFKC"), salt, config.dkLen, {
 			N: config.N,
 			r: config.r,
@@ -23510,7 +23511,7 @@ function generateKey(password, salt) {
 			maxmem: 128 * config.N * config.r * 2
 		}, (err, key) => {
 			if (err) reject(err);
-			else resolve(key);
+			else resolve$1(key);
 		});
 	});
 }
@@ -25413,7 +25414,7 @@ var betterFetch = async (url$1, options) => {
 		if (await retryStrategy.shouldAttemptRetry(_retryAttempt, response)) {
 			for (const onRetry of hooks.onRetry) if (onRetry) await onRetry(responseContext);
 			const delay = retryStrategy.getDelay(_retryAttempt);
-			await new Promise((resolve) => setTimeout(resolve, delay));
+			await new Promise((resolve$1) => setTimeout(resolve$1, delay));
 			return await betterFetch(url$1, __spreadProps(__spreadValues({}, options), { retryAttempt: _retryAttempt + 1 }));
 		}
 	}
@@ -37529,6 +37530,7 @@ var SQLiteTransaction = class extends BaseSQLiteDatabase {
 var schema_exports = /* @__PURE__ */ __export({
 	account: () => account,
 	session: () => session,
+	storageFiles: () => storageFiles,
 	todos: () => todos,
 	user: () => user,
 	verification: () => verification
@@ -37586,6 +37588,31 @@ const todos = sqliteTable("todos", {
 	createdAt: text("createdAt").notNull().default(sql`CURRENT_TIMESTAMP`),
 	updatedAt: text("updatedAt").notNull().default(sql`CURRENT_TIMESTAMP`)
 }, (table) => [index("idx_todos_userId").on(table.userId)]);
+const storageFiles = sqliteTable("storage_files", {
+	id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+	userId: text("userId"),
+	gatewayFileId: text("gatewayFileId"),
+	fileName: text("fileName").notNull(),
+	fileSuffix: text("fileSuffix").notNull(),
+	contentType: text("contentType").notNull().default("application/octet-stream"),
+	fileSize: integer("fileSize").notNull(),
+	objectKey: text("objectKey").notNull(),
+	path: text("path").notNull(),
+	downloadUrl: text("downloadUrl").notNull(),
+	status: text("status", { enum: [
+		"pending",
+		"uploaded",
+		"failed",
+		"deleted"
+	] }).notNull().default("pending"),
+	errorMessage: text("errorMessage"),
+	createdAt: text("createdAt").notNull().default(sql`CURRENT_TIMESTAMP`),
+	updatedAt: text("updatedAt").notNull().default(sql`CURRENT_TIMESTAMP`)
+}, (table) => [
+	index("idx_storage_files_userId").on(table.userId),
+	index("idx_storage_files_objectKey").on(table.objectKey),
+	index("idx_storage_files_status").on(table.status)
+]);
 var LibsqlError = class extends Error {
 	code;
 	extendedCode;
@@ -43526,10 +43553,10 @@ var require_promise_limit = /* @__PURE__ */ __commonJSMin(((exports, module) => 
 			if (job) run(job.fn).then(job.resolve).catch(job.reject);
 		}
 		function queue(fn) {
-			return new Promise(function(resolve, reject) {
+			return new Promise(function(resolve$1, reject) {
 				jobs.push({
 					fn,
-					resolve,
+					resolve: resolve$1,
 					reject
 				});
 				semaphore.queue = jobs.length;
@@ -44232,8 +44259,7 @@ var viteEnv = {
 	"DEV": false,
 	"MODE": "production",
 	"PROD": true,
-	"SSR": true,
-	"VITE_GOOGLE_CLIENT_ID": "239254473522-fpvv5fu4prakgopd46a9g94t45v9h482.apps.googleusercontent.com"
+	"SSR": true
 };
 var DEV_BETTER_AUTH_SECRET = "dev-only-better-auth-secret-change-before-production";
 var FALLBACK_BETTER_AUTH_SECRET = "coding-agent-web-template-fallback-secret-change-in-production";
@@ -44251,9 +44277,12 @@ const env = {
 	ALLOWED_ORIGINS: allowedOrigins.split(",").map((origin) => origin.trim()).filter(Boolean),
 	BETTER_AUTH_URL: readEnv(process.env.BETTER_AUTH_URL) ?? "http://localhost:3100/api/auth",
 	BETTER_AUTH_SECRET: betterAuthSecret,
+	PUBLIC_BACKEND_URL: readEnv(process.env.PUBLIC_BACKEND_URL) ?? "",
 	SKYBASE_DB_ENDPOINT: readEnv(process.env.SKYBASE_DB_ENDPOINT) ?? "",
 	SKYBASE_DB_TOKEN: readEnv(process.env.SKYBASE_DB_AUTH_TOKEN, process.env.SKYBASE_DB_TOKEN) ?? "",
 	SKYBASE_DB_NAMESPACE: readEnv(process.env.SKYBASE_DB_NAMESPACE) ?? "",
+	SKYWORK_GATEWAY_BASE_URL: readEnv(process.env.SKYWORK_GATEWAY_BASE_URL) ?? "https://api-inn.skywork.ai/gateway",
+	SKYWORK_API_TOKEN: readEnv(process.env.SKYWORK_API_TOKEN) ?? "",
 	GOOGLE_CLIENT_ID: readEnv(process.env.GOOGLE_CLIENT_ID, process.env.VITE_GOOGLE_CLIENT_ID, viteEnv.VITE_GOOGLE_CLIENT_ID) ?? "",
 	GOOGLE_CLIENT_SECRET: readEnv(process.env.GOOGLE_CLIENT_SECRET) ?? ""
 };
@@ -44294,6 +44323,72 @@ function getDb() {
 	if (!db) db = drizzle(getClient(), { schema: schema_exports });
 	return db;
 }
+async function insertStorageFile(values) {
+	return (await getDb().insert(storageFiles).values(values).returning())[0];
+}
+async function updateStorageFile(id, values) {
+	return (await getDb().update(storageFiles).set(values).where(eq(storageFiles.id, id)).returning())[0];
+}
+async function findStorageFileByIdForUser(id, userId) {
+	return (await getDb().select().from(storageFiles).where(and(eq(storageFiles.id, id), eq(storageFiles.userId, userId))).limit(1))[0];
+}
+async function upsertThirdPartyUser(input) {
+	const db$1 = getDb();
+	const now$1 = /* @__PURE__ */ new Date();
+	const existing = await db$1.query.user.findFirst({ where: eq(user.email, input.email) });
+	if (existing) {
+		const user$1 = (await db$1.update(user).set({
+			name: input.name,
+			emailVerified: existing.emailVerified || input.emailVerified,
+			image: input.image ?? existing.image,
+			updatedAt: now$1
+		}).where(eq(user.id, existing.id)).returning())[0] ?? existing;
+		await ensureThirdPartyAccount(user$1.id, input.providerId, input.providerAccountId, now$1);
+		return user$1;
+	}
+	const created = (await db$1.insert(user).values({
+		id: crypto.randomUUID(),
+		email: input.email,
+		name: input.name,
+		emailVerified: input.emailVerified,
+		image: input.image,
+		role: "user",
+		createdAt: now$1,
+		updatedAt: now$1
+	}).returning())[0];
+	await ensureThirdPartyAccount(created.id, input.providerId, input.providerAccountId, now$1);
+	return created;
+}
+async function createAuthSessionRecord(userId, token, expiresAt) {
+	const now$1 = /* @__PURE__ */ new Date();
+	return (await getDb().insert(session).values({
+		id: crypto.randomUUID(),
+		token,
+		userId,
+		expiresAt,
+		createdAt: now$1,
+		updatedAt: now$1
+	}).returning())[0];
+}
+async function ensureThirdPartyAccount(userId, providerId, providerAccountId, now$1) {
+	const db$1 = getDb();
+	const existing = await db$1.query.account.findFirst({ where: and(eq(account.userId, userId), eq(account.providerId, providerId)) });
+	if (existing) {
+		if (existing.accountId !== providerAccountId) await db$1.update(account).set({
+			accountId: providerAccountId,
+			updatedAt: now$1
+		}).where(eq(account.id, existing.id));
+		return;
+	}
+	await db$1.insert(account).values({
+		id: crypto.randomUUID(),
+		accountId: providerAccountId,
+		providerId,
+		userId,
+		createdAt: now$1,
+		updatedAt: now$1
+	});
+}
 function createNamespaceFetch(namespace) {
 	return (input, init) => {
 		if (!namespace) return fetch(input, init);
@@ -44310,11 +44405,133 @@ function createNamespaceFetch(namespace) {
 		});
 	};
 }
+var THIRD_PARTY_PROVIDER_ID = "skywork-google";
+var LOGIN_TOKEN_PARAM = "login_token";
+var LOGIN_SIGNATURE_PARAM = "sig";
+var LOGIN_TIMESTAMP_PARAM = "ts";
+var SESSION_DAYS = 7;
+var SIGNATURE_MAX_AGE_MS = 300 * 1e3;
+var ThirdPartyGoogleAuthError = class extends Error {
+	constructor(code, message$1, status = 500) {
+		super(message$1);
+		this.code = code;
+		this.status = status;
+		this.name = "ThirdPartyGoogleAuthError";
+	}
+};
+function isThirdPartyGoogleAuthConfigured() {
+	return Boolean(env.SKYWORK_GATEWAY_BASE_URL && env.SKYWORK_API_TOKEN);
+}
+async function startThirdPartyGoogleAuth(origin, returnPath) {
+	if (!isThirdPartyGoogleAuthConfigured()) throw new ThirdPartyGoogleAuthError("THIRD_PARTY_GOOGLE_AUTH_CONFIG_MISSING", "Third-party Google auth config missing: set SKYWORK_GATEWAY_BASE_URL and SKYWORK_API_TOKEN", 503);
+	const resp = await fetch(gatewayUrl$1("/gateway/api/website/auth/google_start"), {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			origin,
+			return_path: returnPath
+		})
+	});
+	if (!resp.ok) {
+		const message$1 = await resp.text().catch(() => resp.statusText);
+		throw new ThirdPartyGoogleAuthError("THIRD_PARTY_GOOGLE_AUTH_START_FAILED", `Third-party Google auth start failed (${resp.status}): ${message$1}`, 502);
+	}
+	const envelope = await resp.json();
+	if (envelope.code !== 0 || !envelope.data?.auth_url) throw new ThirdPartyGoogleAuthError("THIRD_PARTY_GOOGLE_AUTH_START_FAILED", `Third-party Google auth start failed: ${envelope.message || "missing auth_url"}`, 502);
+	return {
+		authUrl: envelope.data.auth_url,
+		state: envelope.data.state ?? "",
+		traceId: envelope.trace_id
+	};
+}
+async function completeThirdPartyGoogleAuth(googleUser, token, landingPath = "/") {
+	if (!env.SKYWORK_API_TOKEN || token !== env.SKYWORK_API_TOKEN) throw new ThirdPartyGoogleAuthError("THIRD_PARTY_GOOGLE_AUTH_UNAUTHORIZED", "Invalid third-party auth token", 401);
+	const dbUser = await upsertThirdPartyUser({
+		providerId: THIRD_PARTY_PROVIDER_ID,
+		...normalizeGoogleUser(googleUser)
+	});
+	const authSession = await createAuthSession(dbUser.id);
+	return {
+		landingPath: await signLandingPath(landingPath, authSession.token),
+		token: authSession.token,
+		user: dbUser
+	};
+}
+async function verifySignedLoginToken(pathname, token, ts, signature) {
+	const timestamp = Number(ts);
+	if (!Number.isFinite(timestamp) || Math.abs(Date.now() - timestamp) > SIGNATURE_MAX_AGE_MS) return false;
+	return timingSafeEqual(signature, await createSignature(pathname, token, ts));
+}
+function normalizeGoogleUser(googleUser) {
+	const email$2 = typeof googleUser.email === "string" ? googleUser.email.trim().toLowerCase() : "";
+	if (!email$2) throw new ThirdPartyGoogleAuthError("THIRD_PARTY_GOOGLE_AUTH_INVALID_USER", "Google user is missing email", 400);
+	const providerAccountId = stringValue(googleUser.sub) || stringValue(googleUser.id) || email$2;
+	const name = stringValue(googleUser.name) || [stringValue(googleUser.given_name), stringValue(googleUser.family_name)].filter(Boolean).join(" ") || email$2.split("@")[0];
+	return {
+		providerAccountId,
+		email: email$2,
+		emailVerified: booleanValue(googleUser.email_verified) ?? booleanValue(googleUser.emailVerified) ?? true,
+		name,
+		image: stringValue(googleUser.picture) || stringValue(googleUser.avatar_url) || null
+	};
+}
+async function createAuthSession(userId) {
+	const now$1 = /* @__PURE__ */ new Date();
+	return createAuthSessionRecord(userId, randomToken(), new Date(now$1.getTime() + SESSION_DAYS * 24 * 60 * 60 * 1e3));
+}
+async function signLandingPath(rawLandingPath, token) {
+	const landingUrl = new URL(rawLandingPath || "/", "https://app.local");
+	const ts = Date.now().toString();
+	landingUrl.searchParams.set(LOGIN_TOKEN_PARAM, token);
+	landingUrl.searchParams.set(LOGIN_TIMESTAMP_PARAM, ts);
+	landingUrl.searchParams.set(LOGIN_SIGNATURE_PARAM, await createSignature(landingUrl.pathname, token, ts));
+	return `${landingUrl.pathname}${landingUrl.search}${landingUrl.hash}`;
+}
+async function createSignature(pathname, token, ts) {
+	const encoder$1 = new TextEncoder();
+	const key = await crypto.subtle.importKey("raw", encoder$1.encode(env.BETTER_AUTH_SECRET), {
+		name: "HMAC",
+		hash: "SHA-256"
+	}, false, ["sign"]);
+	const bytes = await crypto.subtle.sign("HMAC", key, encoder$1.encode(`${pathname}.${token}.${ts}`));
+	return base64UrlEncode(new Uint8Array(bytes));
+}
+function gatewayUrl$1(path$1) {
+	const base = env.SKYWORK_GATEWAY_BASE_URL.replace(/\/+$/, "").replace(/\/gateway$/, "");
+	return new URL(path$1, `${base}/`).toString();
+}
+function stringValue(value) {
+	return typeof value === "string" ? value.trim() : "";
+}
+function booleanValue(value) {
+	if (typeof value === "boolean") return value;
+	if (typeof value === "string") return value === "true";
+}
+function randomToken() {
+	const bytes = new Uint8Array(24);
+	crypto.getRandomValues(bytes);
+	return base64UrlEncode(bytes);
+}
+function base64UrlEncode(bytes) {
+	let binary$1 = "";
+	for (const byte of bytes) binary$1 += String.fromCharCode(byte);
+	return btoa(binary$1).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+function timingSafeEqual(a, b) {
+	const encoder$1 = new TextEncoder();
+	const aBytes = encoder$1.encode(a);
+	const bBytes = encoder$1.encode(b);
+	if (aBytes.length !== bBytes.length) return false;
+	let diff = 0;
+	for (let index$1 = 0; index$1 < aBytes.length; index$1 += 1) diff |= aBytes[index$1] ^ bBytes[index$1];
+	return diff === 0;
+}
 var socialProviders = env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET ? { google: {
 	clientId: env.GOOGLE_CLIENT_ID,
 	clientSecret: env.GOOGLE_CLIENT_SECRET
 } } : {};
 const enabledSocialProviders = Object.keys(socialProviders);
+const enabledThirdPartySocialProviders = isThirdPartyGoogleAuthConfigured() ? ["google"] : [];
 function trustedOrigins(request) {
 	const callerOrigin = request?.headers.get("origin");
 	const ownHost = request?.headers.get("x-forwarded-host") ?? request?.headers.get("host");
@@ -44365,6 +44582,7 @@ function toAuthUser(session$1) {
 		id: user$1.id,
 		name: user$1.name,
 		email: user$1.email,
+		emailVerified: Boolean(user$1.emailVerified),
 		role: user$1.role ?? "user",
 		username: user$1.username
 	};
@@ -44377,10 +44595,190 @@ function toAuthSession(session$1) {
 		userId: session$1.session.userId
 	};
 }
+var auth_config_route_exports = /* @__PURE__ */ __export({
+	authConfigRouter: () => authConfigRouter,
+	isPublic: () => true
+}, 1);
 const authConfigRouter = new Hono();
 authConfigRouter.get("/", (c) => {
-	return c.json(apiSuccess({ socialProviders: enabledSocialProviders }));
+	return c.json(apiSuccess({
+		socialProviders: enabledSocialProviders,
+		thirdPartySocialProviders: enabledThirdPartySocialProviders
+	}));
 });
+var MessageServiceError = class extends Error {
+	constructor(message$1, status, code) {
+		super(message$1);
+		this.status = status;
+		this.code = code;
+		this.name = "MessageServiceError";
+	}
+};
+function gatewayUrl(path$1) {
+	return `${env.SKYWORK_GATEWAY_BASE_URL.replace(/\/+$/, "")}${path$1}`;
+}
+async function postMessage(path$1, body) {
+	if (!env.SKYWORK_API_TOKEN) throw new MessageServiceError("SKYWORK_API_TOKEN is not configured", 500);
+	const response = await fetch(gatewayUrl(path$1), {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"X-Skywork-Api-Token": env.SKYWORK_API_TOKEN
+		},
+		body: JSON.stringify(body)
+	});
+	let responseBody = null;
+	try {
+		responseBody = await response.json();
+	} catch {}
+	const envelope = responseBody;
+	if (!response.ok || !envelope || envelope.code !== 0) throw new MessageServiceError(envelope?.message || "failed to send email", response.status, envelope?.code);
+	return envelope.data;
+}
+async function sendTemplateEmail(input) {
+	const body = {
+		template_id: input.templateId,
+		sender_mode: input.senderMode ?? "auto",
+		data: input.data,
+		recipient: input.recipient ?? {}
+	};
+	if (input.locale) body.locale = input.locale;
+	return postMessage("/api/v1/website/message/email/template/send", body);
+}
+async function sendEmailVerificationCode(input) {
+	return sendTemplateEmail({
+		templateId: "email_verification_code",
+		locale: input.locale,
+		data: {
+			code: input.code,
+			expires_in_minutes: input.expiresInMinutes,
+			site_name: input.siteName ?? "Website"
+		},
+		recipient: { email: input.email }
+	});
+}
+var email_verification_route_exports = /* @__PURE__ */ __export({ emailVerificationRouter: () => emailVerificationRouter }, 1);
+var CODE_TTL_MINUTES = 10;
+var RESEND_COOLDOWN_SECONDS = 60;
+var MAX_VERIFY_ATTEMPTS = 5;
+var VERIFICATION_PREFIX = "email-verification:";
+var VerifyCodeSchema = object$1({ code: string$2().regex(/^\d{6}$/) });
+const emailVerificationRouter = new Hono();
+function identifierFor(email$2) {
+	return `${VERIFICATION_PREFIX}${email$2.toLowerCase()}`;
+}
+function generateCode() {
+	return String(Math.floor(1e5 + Math.random() * 9e5));
+}
+function requestLocale(c) {
+	return c.req.header("Accept-Language")?.split(",", 1)[0]?.trim() || void 0;
+}
+function encodeVerificationValue(value) {
+	return JSON.stringify(value);
+}
+function decodeVerificationValue(raw$1) {
+	try {
+		const parsed = JSON.parse(raw$1);
+		if (typeof parsed.code === "string") {
+			const attempts = parsed.attempts;
+			return {
+				code: parsed.code,
+				attempts: typeof attempts === "number" && Number.isInteger(attempts) && attempts >= 0 ? attempts : 0
+			};
+		}
+	} catch {}
+	return {
+		code: raw$1,
+		attempts: 0
+	};
+}
+emailVerificationRouter.post("/send-code", async (c) => {
+	const user$1 = c.var.user;
+	if (!user$1) return c.json(apiFailure("UNAUTHORIZED", "Unauthorized"), 401);
+	if (user$1.emailVerified) return c.json(apiSuccess({
+		sent: false,
+		alreadyVerified: true
+	}), 200);
+	const code = generateCode();
+	const now$1 = Date.now();
+	const expiresAt = now$1 + CODE_TTL_MINUTES * 60 * 1e3;
+	const identifier = identifierFor(user$1.email);
+	const existing = (await getDb().select().from(verification).where(eq(verification.identifier, identifier)).limit(1))[0];
+	const lastSentAt = Number(existing?.createdAt?.getTime() ?? existing?.updatedAt?.getTime() ?? 0);
+	const retryAfterSeconds = Math.ceil((lastSentAt + RESEND_COOLDOWN_SECONDS * 1e3 - now$1) / 1e3);
+	if (retryAfterSeconds > 0) return c.json({
+		...apiFailure("VERIFICATION_EMAIL_RATE_LIMITED", "Please wait before requesting another code"),
+		data: { retryAfterSeconds }
+	}, 429);
+	await getDb().delete(verification).where(eq(verification.identifier, identifier));
+	await getDb().insert(verification).values({
+		id: crypto.randomUUID(),
+		identifier,
+		value: encodeVerificationValue({
+			code,
+			attempts: 0
+		}),
+		expiresAt: new Date(expiresAt),
+		createdAt: new Date(now$1),
+		updatedAt: new Date(now$1)
+	});
+	try {
+		await sendEmailVerificationCode({
+			email: user$1.email,
+			code,
+			expiresInMinutes: CODE_TTL_MINUTES,
+			siteName: "Website",
+			locale: requestLocale(c)
+		});
+	} catch (error$51) {
+		await getDb().delete(verification).where(eq(verification.identifier, identifier));
+		throw error$51;
+	}
+	return c.json(apiSuccess({
+		sent: true,
+		expiresInMinutes: CODE_TTL_MINUTES
+	}), 200);
+});
+emailVerificationRouter.post("/verify-code", async (c) => {
+	const user$1 = c.var.user;
+	if (!user$1) return c.json(apiFailure("UNAUTHORIZED", "Unauthorized"), 401);
+	const parsed = VerifyCodeSchema.safeParse(await c.req.json().catch(() => null));
+	if (!parsed.success) return c.json(apiFailure("INVALID_CODE", "Enter the 6-digit verification code"), 400);
+	const identifier = identifierFor(user$1.email);
+	const row = (await getDb().select().from(verification).where(eq(verification.identifier, identifier)).limit(1))[0];
+	if (!row) return c.json(apiFailure("CODE_NOT_FOUND", "Request a new verification code"), 400);
+	const stored = decodeVerificationValue(row.value);
+	const expiresAt = row.expiresAt.getTime();
+	if (Date.now() > expiresAt) {
+		await getDb().delete(verification).where(eq(verification.identifier, identifier));
+		return c.json(apiFailure("CODE_EXPIRED", "Verification code has expired"), 400);
+	}
+	if (stored.code !== parsed.data.code) {
+		const attempts = stored.attempts + 1;
+		if (attempts >= MAX_VERIFY_ATTEMPTS) {
+			await getDb().delete(verification).where(eq(verification.identifier, identifier));
+			return c.json(apiFailure("CODE_ATTEMPTS_EXCEEDED", "Request a new verification code"), 429);
+		}
+		await getDb().update(verification).set({
+			value: encodeVerificationValue({
+				code: stored.code,
+				attempts
+			}),
+			updatedAt: /* @__PURE__ */ new Date()
+		}).where(eq(verification.identifier, identifier));
+		return c.json(apiFailure("CODE_INVALID", "Invalid verification code"), 400);
+	}
+	await getDb().update(user).set({
+		emailVerified: true,
+		updatedAt: /* @__PURE__ */ new Date()
+	}).where(eq(user.id, user$1.id));
+	await getDb().delete(verification).where(eq(verification.identifier, identifier));
+	return c.json(apiSuccess({ verified: true }), 200);
+});
+var health_route_exports = /* @__PURE__ */ __export({
+	healthRouter: () => healthRouter,
+	isPublic: () => true
+}, 1);
 const healthRouter = new Hono();
 var healthHandler = (c) => {
 	return c.json(apiSuccess({
@@ -44391,6 +44789,323 @@ var healthHandler = (c) => {
 healthRouter.get("/", healthHandler);
 healthRouter.get("", healthHandler);
 healthRouter.get("/*", healthHandler);
+var StorageError = class extends Error {
+	constructor(code, message$1, status = 500) {
+		super(message$1);
+		this.code = code;
+		this.status = status;
+		this.name = "StorageError";
+	}
+};
+function getGatewayConfig() {
+	if (!env.SKYWORK_GATEWAY_BASE_URL || !env.SKYWORK_API_TOKEN) throw new StorageError("STORAGE_CONFIG_MISSING", "Storage config missing: set SKYWORK_GATEWAY_BASE_URL and SKYWORK_API_TOKEN", 503);
+	return {
+		gatewayUrl: env.SKYWORK_GATEWAY_BASE_URL.replace(/\/+$/, ""),
+		ak: env.SKYWORK_API_TOKEN
+	};
+}
+function normalizeContentType(contentType) {
+	const value = contentType?.trim();
+	return value && value.includes("/") ? value : "application/octet-stream";
+}
+function normalizeFileName(relKey) {
+	const fileName = relKey.trim().replace(/^\/+/, "").split(/[\\/]/).filter(Boolean).pop();
+	return fileName && fileName !== "." && fileName !== ".." ? fileName : void 0;
+}
+function fileSuffixFromName(relKey) {
+	const fileName = normalizeFileName(relKey);
+	const lastDot = fileName?.lastIndexOf(".") ?? -1;
+	return (lastDot >= 0 ? fileName?.slice(lastDot + 1) : void 0)?.toLowerCase().replace(/[^a-z0-9_-]/g, "") || "bin";
+}
+function dataSize(data) {
+	if (typeof data === "string") return new TextEncoder().encode(data).byteLength;
+	return data.byteLength;
+}
+function toBlob(data, contentType) {
+	if (typeof data === "string") return new Blob([data], { type: contentType });
+	const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+	return new Blob([bytes], { type: contentType });
+}
+function toStoredFile(row) {
+	return {
+		id: row.id,
+		key: row.objectKey,
+		path: row.path,
+		url: row.downloadUrl,
+		downloadUrl: row.downloadUrl,
+		userId: row.userId,
+		fileName: row.fileName,
+		fileSuffix: row.fileSuffix,
+		contentType: row.contentType,
+		fileSize: row.fileSize,
+		status: row.status,
+		createdAt: row.createdAt,
+		updatedAt: row.updatedAt
+	};
+}
+async function requestUploadItem(relKey, fileSize, contentType) {
+	const { gatewayUrl: gatewayUrl$2, ak } = getGatewayConfig();
+	const signUrl = new URL("/gateway/api/wb/s3_file_get", `${gatewayUrl$2}/`);
+	const resp = await fetch(signUrl, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			ak,
+			files: [{
+				file_suffix: fileSuffixFromName(relKey),
+				file_size: fileSize,
+				file_name: normalizeFileName(relKey),
+				content_type: contentType
+			}]
+		})
+	});
+	if (!resp.ok) {
+		const msg = await resp.text().catch(() => resp.statusText);
+		throw new StorageError("STORAGE_SIGN_FAILED", `Storage sign request failed (${resp.status}): ${msg}`, 502);
+	}
+	const envelope = await resp.json();
+	if (envelope.code !== 0) throw new StorageError("STORAGE_SIGN_FAILED", `Storage sign failed: ${envelope.message}`, 502);
+	const item = envelope.data?.items?.[0];
+	if (!item?.oss_url || !item.download_url || !item.object_key || !item.form_data) throw new StorageError("STORAGE_SIGN_INVALID", "Storage sign response is missing upload fields", 502);
+	return item;
+}
+async function requestDelete(paths$1) {
+	const { gatewayUrl: gatewayUrl$2, ak } = getGatewayConfig();
+	const deleteUrl = new URL("/gateway/api/wb/s3_file_delete", `${gatewayUrl$2}/`);
+	const resp = await fetch(deleteUrl, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			ak,
+			paths: paths$1
+		})
+	});
+	if (!resp.ok) {
+		const msg = await resp.text().catch(() => resp.statusText);
+		throw new StorageError("STORAGE_DELETE_FAILED", `Storage delete request failed (${resp.status}): ${msg}`, 502);
+	}
+	const envelope = await resp.json();
+	if (envelope.code !== 0) throw new StorageError("STORAGE_DELETE_FAILED", `Storage delete failed: ${envelope.message}`, 502);
+}
+async function createPendingRecord(userId, item, contentType) {
+	return insertStorageFile({
+		userId,
+		gatewayFileId: item.id,
+		fileName: item.file_name,
+		fileSuffix: item.file_suffix,
+		contentType,
+		fileSize: item.file_size,
+		objectKey: item.object_key,
+		path: item.object_key,
+		downloadUrl: item.download_url,
+		status: "pending"
+	});
+}
+async function markRecordUploaded(id) {
+	return updateStorageFile(id, {
+		status: "uploaded",
+		errorMessage: null,
+		updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+	});
+}
+async function markRecordFailed(id, error$51) {
+	return updateStorageFile(id, {
+		status: "failed",
+		errorMessage: error$51 instanceof Error ? error$51.message : "Storage upload failed",
+		updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+	});
+}
+async function markRecordDeleted(id) {
+	return updateStorageFile(id, {
+		status: "deleted",
+		errorMessage: null,
+		updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+	});
+}
+async function uploadToOss(item, data, contentType) {
+	const form = new FormData();
+	for (const [key, value] of Object.entries(item.form_data)) form.append(key, value);
+	form.append("file", toBlob(data, contentType), item.file_name);
+	const uploadResp = await fetch(item.oss_url, {
+		method: item.method || "POST",
+		body: form
+	});
+	if (!uploadResp.ok) {
+		const msg = await uploadResp.text().catch(() => uploadResp.statusText);
+		throw new StorageError("STORAGE_UPLOAD_FAILED", `Storage upload to OSS failed (${uploadResp.status}): ${msg}`, 502);
+	}
+}
+async function storagePut(relKey, data, contentType = "application/octet-stream", options = {}) {
+	const normalizedContentType = normalizeContentType(contentType);
+	const size = dataSize(data);
+	if (size <= 0) throw new StorageError("STORAGE_FILE_EMPTY", "File content is empty", 400);
+	const item = await requestUploadItem(relKey, size, normalizedContentType);
+	const pending = await createPendingRecord(options.userId ?? null, item, normalizedContentType);
+	try {
+		await uploadToOss(item, data, normalizedContentType);
+		return toStoredFile(await markRecordUploaded(pending.id));
+	} catch (error$51) {
+		await markRecordFailed(pending.id, error$51).catch(() => void 0);
+		throw error$51;
+	}
+}
+async function storageGetForUser(id, userId) {
+	const row = await findStorageFileByIdForUser(id, userId);
+	if (!row) throw new StorageError("STORAGE_FILE_NOT_FOUND", "Storage file not found", 404);
+	return toStoredFile(row);
+}
+async function storageDeleteForUser(id, userId) {
+	const file$1 = await storageGetForUser(id, userId);
+	if (file$1.status === "deleted") return file$1;
+	await requestDelete([file$1.path]);
+	return toStoredFile(await markRecordDeleted(id));
+}
+function storageErrorResponse(error$51) {
+	const status = error$51.status === 404 ? 404 : error$51.status === 400 ? 400 : error$51.status === 503 ? 503 : 502;
+	return {
+		body: apiFailure(error$51.code, error$51.message),
+		status
+	};
+}
+var storage_route_exports = /* @__PURE__ */ __export({ storageRouter: () => storageRouter }, 1);
+const storageRouter = new Hono();
+function unauthorized$1() {
+	return apiFailure("UNAUTHORIZED", "Unauthorized");
+}
+function toErrorResponse(error$51) {
+	if (error$51 instanceof StorageError || error$51 instanceof DatabaseError) return storageErrorResponse(error$51);
+	throw error$51;
+}
+var uploadHandler = async (c) => {
+	const user$1 = c.var.user;
+	if (!user$1) return c.json(unauthorized$1(), 401);
+	let body;
+	try {
+		body = await c.req.formData();
+	} catch {
+		return c.json(apiFailure("INVALID_INPUT", "Expected multipart/form-data"), 400);
+	}
+	const file$1 = body.get("file");
+	if (!(file$1 instanceof File)) return c.json(apiFailure("INVALID_INPUT", "File is required"), 400);
+	const requestedPath = body.get("path");
+	const relKey = typeof requestedPath === "string" && requestedPath.trim() ? requestedPath : file$1.name;
+	const bytes = new Uint8Array(await file$1.arrayBuffer());
+	try {
+		const storedFile = await storagePut(relKey, bytes, file$1.type, { userId: user$1.id });
+		return c.json(apiSuccess({ file: storedFile }), 200);
+	} catch (error$51) {
+		const { body: errorBody, status } = toErrorResponse(error$51);
+		return c.json(errorBody, status);
+	}
+};
+storageRouter.post("", uploadHandler);
+storageRouter.post("/", uploadHandler);
+storageRouter.get("/:id", async (c) => {
+	const user$1 = c.var.user;
+	if (!user$1) return c.json(unauthorized$1(), 401);
+	try {
+		const file$1 = await storageGetForUser(c.req.param("id"), user$1.id);
+		return c.json(apiSuccess({ file: file$1 }), 200);
+	} catch (error$51) {
+		const { body, status } = toErrorResponse(error$51);
+		return c.json(body, status);
+	}
+});
+storageRouter.get("/:id/download", async (c) => {
+	const user$1 = c.var.user;
+	if (!user$1) return c.json(unauthorized$1(), 401);
+	try {
+		const file$1 = await storageGetForUser(c.req.param("id"), user$1.id);
+		if (file$1.status !== "uploaded") return c.json(apiFailure("STORAGE_FILE_NOT_UPLOADED", "Storage file is not uploaded"), 409);
+		return c.redirect(file$1.downloadUrl, 302);
+	} catch (error$51) {
+		const { body, status } = toErrorResponse(error$51);
+		return c.json(body, status);
+	}
+});
+storageRouter.delete("/:id", async (c) => {
+	const user$1 = c.var.user;
+	if (!user$1) return c.json(unauthorized$1(), 401);
+	try {
+		const file$1 = await storageDeleteForUser(c.req.param("id"), user$1.id);
+		return c.json(apiSuccess({ file: file$1 }), 200);
+	} catch (error$51) {
+		const { body, status } = toErrorResponse(error$51);
+		return c.json(body, status);
+	}
+});
+var third_party_google_auth_route_exports = /* @__PURE__ */ __export({
+	isPublic: () => true,
+	thirdPartyGoogleAuthRouter: () => thirdPartyGoogleAuthRouter
+}, 1);
+var StartSchema = object$1({
+	origin: string$2().url().optional(),
+	landing_path: string$2().optional()
+});
+var CallbackSchema = object$1({
+	user: object$1({}).passthrough(),
+	token: string$2().min(1),
+	landing_path: string$2().optional()
+});
+var VerifySchema = object$1({
+	path: string$2().min(1),
+	token: string$2().min(1),
+	ts: string$2().min(1),
+	sig: string$2().min(1)
+});
+const thirdPartyGoogleAuthRouter = new Hono();
+thirdPartyGoogleAuthRouter.get("/config", (c) => {
+	return c.json(apiSuccess({ enabled: isThirdPartyGoogleAuthConfigured() }));
+});
+thirdPartyGoogleAuthRouter.post("/start", async (c) => {
+	const parsed = StartSchema.safeParse(await c.req.json().catch(() => ({})));
+	if (!parsed.success) return c.json(apiFailure("INVALID_INPUT", "Invalid third-party Google auth start input"), 400);
+	const requestUrl = new URL(c.req.url);
+	const origin = parsed.data.origin ?? c.req.header("Origin") ?? requestUrl.origin;
+	const returnPath = callbackPathWithLandingPath(parsed.data.landing_path ?? "/");
+	try {
+		const result = await startThirdPartyGoogleAuth(origin, returnPath);
+		return c.json(apiSuccess(result), 200);
+	} catch (error$51) {
+		return googleAuthError(error$51);
+	}
+});
+thirdPartyGoogleAuthRouter.post("/callback", async (c) => {
+	const parsed = CallbackSchema.safeParse(await c.req.json().catch(() => null));
+	if (!parsed.success) return c.json(apiFailure("INVALID_INPUT", "Invalid third-party Google auth callback input"), 400);
+	try {
+		const result = await completeThirdPartyGoogleAuth(parsed.data.user, parsed.data.token, parsed.data.landing_path ?? c.req.query("landing_path") ?? "/");
+		return c.json(apiSuccess({
+			landing_path: result.landingPath,
+			path: result.landingPath
+		}), 200);
+	} catch (error$51) {
+		return googleAuthError(error$51);
+	}
+});
+thirdPartyGoogleAuthRouter.post("/verify", async (c) => {
+	const parsed = VerifySchema.safeParse(await c.req.json().catch(() => null));
+	if (!parsed.success) return c.json(apiFailure("INVALID_INPUT", "Invalid third-party Google auth verification input"), 400);
+	if (!await verifySignedLoginToken(parsed.data.path, parsed.data.token, parsed.data.ts, parsed.data.sig)) return c.json(apiFailure("INVALID_LOGIN_TOKEN", "Invalid login token signature"), 401);
+	return c.json(apiSuccess({ ok: true }), 200);
+});
+function googleAuthError(error$51) {
+	if (error$51 instanceof ThirdPartyGoogleAuthError) return Response.json(apiFailure(error$51.code, error$51.message), { status: error$51.status });
+	if (error$51 instanceof DatabaseError) return Response.json(apiFailure(error$51.code, error$51.message), { status: error$51.status === 503 ? 503 : 502 });
+	throw error$51;
+}
+function callbackPathWithLandingPath(landingPath) {
+	return `/api/third-party-google-auth/callback?${new URLSearchParams({ landing_path: normalizeLandingPath(landingPath) }).toString()}`;
+}
+function normalizeLandingPath(value) {
+	const raw$1 = value.trim() || "/";
+	try {
+		const parsed = new URL(raw$1, "https://app.local");
+		return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+	} catch {
+		return "/";
+	}
+}
 function toTodo(row) {
 	return {
 		id: row.id,
@@ -44423,6 +45138,7 @@ async function updateTodo(userId, id, input) {
 async function deleteTodo(userId, id) {
 	if ((await getDb().delete(todos).where(and(eq(todos.id, id), eq(todos.userId, userId))).returning({ id: todos.id })).length === 0) throw new DatabaseError("DATABASE_QUERY_FAILED", "Todo not found", 404);
 }
+var todos_route_exports = /* @__PURE__ */ __export({ todosRouter: () => todosRouter }, 1);
 var CreateTodoSchema = object$1({ title: string$2().trim().min(1).max(200) });
 var UpdateTodoSchema = object$1({
 	title: string$2().trim().min(1).max(200).optional(),
@@ -44492,11 +45208,46 @@ todosRouter.delete("/:id", async (c) => {
 		throw error$51;
 	}
 });
-const PUBLIC_API_PREFIXES = [
-	"/api/auth",
-	"/api/auth-config",
-	"/api/health"
-];
+var ALWAYS_PUBLIC_PREFIXES = ["/api/auth"];
+function isHono(value) {
+	return typeof value === "object" && value !== null && typeof value.fetch === "function" && typeof value.route === "function" && typeof value.use === "function";
+}
+function pickRouter(mod) {
+	if (isHono(mod.default)) return mod.default;
+	for (const value of Object.values(mod)) if (isHono(value)) return value;
+	return null;
+}
+function routeNameFromPath(filePath) {
+	return filePath.replace(/^.*\/routes\//, "").replace(/\.route\.[tj]s$/, "");
+}
+var modules;
+try {
+	modules = {
+		"../routes/auth-config.route.ts": auth_config_route_exports,
+		"../routes/email-verification.route.ts": email_verification_route_exports,
+		"../routes/health.route.ts": health_route_exports,
+		"../routes/storage.route.ts": storage_route_exports,
+		"../routes/third-party-google-auth.route.ts": third_party_google_auth_route_exports,
+		"../routes/todos.route.ts": todos_route_exports
+	};
+} catch {
+	const routesDir = resolve(dirname(fileURLToPath(import.meta.url)), "../routes");
+	const req = createRequire(import.meta.url);
+	const files = readdirSync(routesDir).filter((f) => f.endsWith(".route.ts") || f.endsWith(".route.js"));
+	modules = Object.fromEntries(files.map((f) => [f, req(resolve(routesDir, f))]));
+}
+const routeEntries = Object.entries(modules).map(([filePath, mod]) => {
+	const router$1 = pickRouter(mod);
+	if (!router$1) return null;
+	const name = routeNameFromPath(filePath);
+	return {
+		name,
+		path: `/api/${name}`,
+		router: router$1,
+		isPublic: mod.isPublic === true
+	};
+}).filter((entry) => entry !== null).sort((a, b) => a.name.localeCompare(b.name));
+const PUBLIC_API_PREFIXES = [...ALWAYS_PUBLIC_PREFIXES, ...routeEntries.filter((entry) => entry.isPublic).map((entry) => entry.path)];
 function isPublicApiPath(pathname) {
 	return PUBLIC_API_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
@@ -44535,7 +45286,6 @@ const onError = (err, c) => {
 var app = new Hono();
 app.use("/api/*", cors({
 	origin: (origin) => origin || "*",
-	allowHeaders: ["Content-Type", "Authorization"],
 	exposeHeaders: ["set-auth-token"],
 	allowMethods: [
 		"GET",
@@ -44547,14 +45297,13 @@ app.use("/api/*", cors({
 	],
 	credentials: true
 }));
+app.options("/api/auth/*", (c) => c.body(null, 204));
 app.on(["GET", "POST"], "/api/auth/*", (c) => {
 	if (!isDatabaseConfigured()) return c.json(apiFailure("DATABASE_UNCONFIGURED", "Skybase database runtime env is not configured"), 503);
 	return getAuth().handler(c.req.raw);
 });
 app.use("/api/*", withSession);
-app.route("/api/auth-config", authConfigRouter);
-app.route("/api/health", healthRouter);
-app.route("/api/todos", todosRouter);
+for (const { path: path$1, router: router$1 } of routeEntries) app.route(path$1, router$1);
 app.onError(onError);
 app.notFound(notFound);
 serve({
