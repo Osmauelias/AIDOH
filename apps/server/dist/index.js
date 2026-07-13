@@ -3766,8 +3766,8 @@ var handleKeyObject = (keyObject, alg$1) => {
 	cache$1 ||= /* @__PURE__ */ new WeakMap();
 	let cached$1 = cache$1.get(keyObject);
 	if (cached$1?.[alg$1]) return cached$1[alg$1];
-	const isPublic$3 = keyObject.type === "public";
-	const extractable = isPublic$3 ? true : false;
+	const isPublic$4 = keyObject.type === "public";
+	const extractable = isPublic$4 ? true : false;
 	let cryptoKey;
 	if (keyObject.asymmetricKeyType === "x25519") {
 		switch (alg$1) {
@@ -3777,18 +3777,18 @@ var handleKeyObject = (keyObject, alg$1) => {
 			case "ECDH-ES+A256KW": break;
 			default: throw new TypeError(unusableForAlg);
 		}
-		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, isPublic$3 ? [] : ["deriveBits"]);
+		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, isPublic$4 ? [] : ["deriveBits"]);
 	}
 	if (keyObject.asymmetricKeyType === "ed25519") {
 		if (alg$1 !== "EdDSA" && alg$1 !== "Ed25519") throw new TypeError(unusableForAlg);
-		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic$3 ? "verify" : "sign"]);
+		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic$4 ? "verify" : "sign"]);
 	}
 	switch (keyObject.asymmetricKeyType) {
 		case "ml-dsa-44":
 		case "ml-dsa-65":
 		case "ml-dsa-87":
 			if (alg$1 !== keyObject.asymmetricKeyType.toUpperCase()) throw new TypeError(unusableForAlg);
-			cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic$3 ? "verify" : "sign"]);
+			cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic$4 ? "verify" : "sign"]);
 	}
 	if (keyObject.asymmetricKeyType === "rsa") {
 		let hash$1;
@@ -3816,11 +3816,11 @@ var handleKeyObject = (keyObject, alg$1) => {
 		if (alg$1.startsWith("RSA-OAEP")) return keyObject.toCryptoKey({
 			name: "RSA-OAEP",
 			hash: hash$1
-		}, extractable, isPublic$3 ? ["encrypt"] : ["decrypt"]);
+		}, extractable, isPublic$4 ? ["encrypt"] : ["decrypt"]);
 		cryptoKey = keyObject.toCryptoKey({
 			name: alg$1.startsWith("PS") ? "RSA-PSS" : "RSASSA-PKCS1-v1_5",
 			hash: hash$1
-		}, extractable, [isPublic$3 ? "verify" : "sign"]);
+		}, extractable, [isPublic$4 ? "verify" : "sign"]);
 	}
 	if (keyObject.asymmetricKeyType === "ec") {
 		const namedCurve = new Map([
@@ -3837,11 +3837,11 @@ var handleKeyObject = (keyObject, alg$1) => {
 		if (expectedCurve[alg$1] && namedCurve === expectedCurve[alg$1]) cryptoKey = keyObject.toCryptoKey({
 			name: "ECDSA",
 			namedCurve
-		}, extractable, [isPublic$3 ? "verify" : "sign"]);
+		}, extractable, [isPublic$4 ? "verify" : "sign"]);
 		if (alg$1.startsWith("ECDH-ES")) cryptoKey = keyObject.toCryptoKey({
 			name: "ECDH",
 			namedCurve
-		}, extractable, isPublic$3 ? [] : ["deriveBits"]);
+		}, extractable, isPublic$4 ? [] : ["deriveBits"]);
 	}
 	if (!cryptoKey) throw new TypeError(unusableForAlg);
 	if (!cached$1) cache$1.set(keyObject, { [alg$1]: cryptoKey });
@@ -44323,6 +44323,20 @@ function getDb() {
 	if (!db) db = drizzle(getClient(), { schema: schema_exports });
 	return db;
 }
+function mapLibsqlError(error$51) {
+	if (error$51 instanceof DatabaseError) return error$51;
+	return new DatabaseError("DATABASE_QUERY_FAILED", error$51 instanceof Error ? error$51.message : "Skybase database query failed", 502);
+}
+async function executeSql(sql$1, args) {
+	try {
+		return await getClient().execute({
+			sql: sql$1,
+			args
+		});
+	} catch (error$51) {
+		throw mapLibsqlError(error$51);
+	}
+}
 async function insertStorageFile(values) {
 	return (await getDb().insert(storageFiles).values(values).returning())[0];
 }
@@ -44789,6 +44803,118 @@ var healthHandler = (c) => {
 healthRouter.get("/", healthHandler);
 healthRouter.get("", healthHandler);
 healthRouter.get("/*", healthHandler);
+var leads_route_exports = /* @__PURE__ */ __export({
+	isPublic: () => true,
+	leadsRouter: () => leadsRouter
+}, 1);
+const leadsRouter = new Hono();
+var LeadSchema = object$1({
+	nombre: string$2().trim().min(1),
+	negocio: string$2().trim().min(1),
+	vertical: string$2().trim().min(1),
+	whatsapp: string$2().trim().min(1),
+	ubicacion_zona: string$2().trim().optional().default(""),
+	canal_principal_entrada: string$2().trim().optional().default(""),
+	producto_servicio_mas_consumido: string$2().trim().optional().default(""),
+	tiene_sistema_automatizado: union$1([boolean$2(), string$2()]).optional().default(false),
+	conoce_producto_mas_consumido: union$1([boolean$2(), string$2()]).optional().default(false),
+	conoce_habitos_de_compra: union$1([boolean$2(), string$2()]).optional().default(false),
+	sabe_por_que_no_regresan: union$1([boolean$2(), string$2()]).optional().default(false),
+	tiene_programa_referidos: union$1([boolean$2(), string$2()]).optional().default(false),
+	que_quiere_ver_pantalla: string$2().trim().optional().default(""),
+	que_quiere_automatizar: string$2().trim().optional().default(""),
+	comentarios_libres: string$2().trim().optional().default(""),
+	source_page: string$2().trim().optional().default("landing")
+});
+function databaseStatus$1(error$51) {
+	if (error$51.status === 503) return 503;
+	return 502;
+}
+function toFlag(value) {
+	if (typeof value === "boolean") return value ? 1 : 0;
+	const normalized = String(value ?? "").trim().toLowerCase();
+	return [
+		"sí",
+		"si",
+		"yes",
+		"true",
+		"1",
+		"parcialmente",
+		"más o menos",
+		"mas o menos",
+		"estoy pensándolo",
+		"estoy pensandolo"
+	].includes(normalized) ? 1 : 0;
+}
+async function createLead(c) {
+	const parsed = LeadSchema.safeParse(await c.req.json().catch(() => null));
+	if (!parsed.success) return c.json({
+		ok: false,
+		error: "MISSING_REQUIRED_FIELDS",
+		message: "Nombre, negocio, giro y WhatsApp son obligatorios."
+	}, 422);
+	const lead = parsed.data;
+	try {
+		const result = await executeSql(`INSERT INTO leads (
+        nombre,
+        negocio,
+        vertical,
+        whatsapp,
+        ubicacion_zona,
+        canal_principal_entrada,
+        producto_servicio_mas_consumido,
+        tiene_sistema_automatizado,
+        conoce_producto_mas_consumido,
+        conoce_habitos_de_compra,
+        sabe_por_que_no_regresan,
+        tiene_programa_referidos,
+        que_quiere_ver_pantalla,
+        que_quiere_automatizar,
+        comentarios_libres,
+        status,
+        source_page
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'nuevo', ?)`, [
+			lead.nombre,
+			lead.negocio,
+			lead.vertical,
+			lead.whatsapp,
+			lead.ubicacion_zona,
+			lead.canal_principal_entrada,
+			lead.producto_servicio_mas_consumido,
+			toFlag(lead.tiene_sistema_automatizado),
+			toFlag(lead.conoce_producto_mas_consumido),
+			toFlag(lead.conoce_habitos_de_compra),
+			toFlag(lead.sabe_por_que_no_regresan),
+			toFlag(lead.tiene_programa_referidos),
+			lead.que_quiere_ver_pantalla,
+			lead.que_quiere_automatizar,
+			lead.comentarios_libres,
+			lead.source_page
+		]);
+		return c.json({
+			ok: true,
+			id: Number(result.lastInsertRowid)
+		}, 200);
+	} catch (error$51) {
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus$1(error$51));
+		throw error$51;
+	}
+}
+async function listLeads(c) {
+	const adminKey = c.env?.ADMIN_KEY;
+	if (!adminKey || c.req.header("X-Admin-Key") !== adminKey) return c.json(apiFailure("UNAUTHORIZED", "Admin key required"), 401);
+	try {
+		const result = await executeSql("SELECT * FROM leads ORDER BY created_at DESC, id DESC");
+		return c.json(apiSuccess({ leads: result.rows }), 200);
+	} catch (error$51) {
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus$1(error$51));
+		throw error$51;
+	}
+}
+leadsRouter.post("", createLead);
+leadsRouter.post("/", createLead);
+leadsRouter.get("", listLeads);
+leadsRouter.get("/", listLeads);
 var StorageError = class extends Error {
 	constructor(code, message$1, status = 500) {
 		super(message$1);
@@ -45226,6 +45352,7 @@ try {
 		"../routes/auth-config.route.ts": auth_config_route_exports,
 		"../routes/email-verification.route.ts": email_verification_route_exports,
 		"../routes/health.route.ts": health_route_exports,
+		"../routes/leads.route.ts": leads_route_exports,
 		"../routes/storage.route.ts": storage_route_exports,
 		"../routes/third-party-google-auth.route.ts": third_party_google_auth_route_exports,
 		"../routes/todos.route.ts": todos_route_exports
