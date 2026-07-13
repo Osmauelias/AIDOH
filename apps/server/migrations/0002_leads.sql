@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS leads (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  nombre TEXT NOT NULL,
+  negocio TEXT NOT NULL,
+  vertical TEXT NOT NULL,
+  whatsapp TEXT NOT NULL,
+  ubicacion_zona TEXT,
+  canal_principal_entrada TEXT,
+  producto_servicio_mas_consumido TEXT,
+  tiene_sistema_automatizado INTEGER DEFAULT 0,
+  conoce_producto_mas_consumido INTEGER DEFAULT 0,
+  conoce_habitos_de_compra INTEGER DEFAULT 0,
+  sabe_por_que_no_regresan INTEGER DEFAULT 0,
+  tiene_programa_referidos INTEGER DEFAULT 0,
+  que_quiere_ver_pantalla TEXT,
+  que_quiere_automatizar TEXT,
+  comentarios_libres TEXT,
+  status TEXT DEFAULT 'nuevo',
+  source_page TEXT DEFAULT 'landing',
+  notes_internal TEXT
+);

@@ -1,13 +1,19 @@
 import {
+  AudienceFilter,
   BusinessIntelligence,
   Capabilities,
   DemoSelector,
+  Differentiation,
+  EconomicCost,
   FinalCta,
+  FutureLayer,
   GoodJourney,
   Hero,
   JourneyLie,
   LocalScenes,
   Navbar,
+  Pricing,
+  WorkProcess,
 } from "@/components/AidohExperience";
 
 const Index = () => {
@@ -16,12 +22,18 @@ const Index = () => {
       {/* @section: page-orchestration */}
       <Navbar />
       <Hero />
+      <EconomicCost />
       <JourneyLie />
+      <WorkProcess />
       <LocalScenes />
       <GoodJourney />
       <Capabilities />
       <DemoSelector />
       <BusinessIntelligence />
+      <Differentiation />
+      <AudienceFilter />
+      <Pricing />
+      <FutureLayer />
       <FinalCta />
     </main>
   );
