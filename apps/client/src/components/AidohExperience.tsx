@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 
 const heroImage = "/images/aidoh-hero-tech_2.png";
+const ownerDashboardImage = "https://skyagent-artifacts.skywork.ai/router/agent/2026-07-14/prod_agent_019f5c82-cbfb-7992-848b-c16b76f6b383/aidoh-owner-dashboard_2_a152243bde9b43a283a5d12a6d6d4c0e.png";
 
 const cn = (...classes: Array<string | false | null | undefined>) => classes.filter(Boolean).join(" ");
 
@@ -220,6 +221,11 @@ export function EconomicCost() {
           <p className="mt-5 max-w-3xl text-lg leading-8 text-[var(--steel)]">AIDOH empieza ahí. No prometiendo cien clientes nuevos. Encontrando qué ocurrió con los que ya tocaron tu puerta.</p>
           <p className="mt-5 text-xs uppercase tracking-[0.16em] text-[var(--steel)]/60">Ejemplo ilustrativo. No representa resultados garantizados.</p>
         </Reveal>
+        {/* @section: callout-a */}
+        <Reveal delay={180} className="mt-8 border-l-4 border-[var(--electric)] bg-[var(--green-deep)] px-8 py-8 rounded-[2rem]">
+          <p className="font-heading text-3xl font-bold leading-tight text-[var(--bone)] md:text-4xl lg:text-5xl">¿Sabes cuánto dinero <span className="text-[var(--electric)]">YA ESTÁS PERDIENDO</span> por no conocer bien a tus clientes?</p>
+          <p className="mt-5 text-lg leading-8 text-[var(--steel)]">No hace falta que lleguen más. Solo ver qué está pasando con los que ya llegan.</p>
+        </Reveal>
       </div>
     </section>
   );
@@ -287,17 +293,74 @@ export function WorkProcess() {
           ))}
         </div>
         <Reveal delay={140} className="mt-10 rounded-[2rem] border border-[var(--electric)]/20 bg-[var(--green-deep)]/35 p-7 text-center font-heading text-2xl font-bold text-[var(--bone)]">No instalamos para presumir software. Construimos control.</Reveal>
+        {/* @section: flow-diagrams */}
+        <div className="mt-16 grid gap-8 lg:grid-cols-2">
+          {/* Flujo actual — rojo suave */}
+          <Reveal className="overflow-hidden rounded-[2rem] border border-red-900/40 bg-[#1a0f0f] p-6 md:p-8">
+            <p className="mb-6 font-heading text-sm font-bold uppercase tracking-[0.22em] text-red-300/80">Así se pierde un cliente hoy</p>
+            <div className="flex flex-col gap-0">
+              {[
+                ["Pregunta", "Entra el interés"],
+                ["2h después…", "Se tarda la respuesta"],
+                ["Responden", "Pero sin datos del cliente"],
+                ["Otro vendedor", "Vuelve a pedir los mismos datos"],
+                ['"Lo checo"', "Se enfría, se olvida"],
+                ["Desaparece", "El negocio cree que faltó publicidad"],
+              ].map(([node, note], i, arr) => (
+                <div key={node} className="flex flex-col items-start">
+                  <div className="flex items-center gap-4 w-full">
+                    <div className={`rounded-xl border px-4 py-3 font-heading text-sm font-bold ${i === arr.length - 1 ? "border-red-500/50 bg-red-950/60 text-red-200" : "border-red-900/60 bg-[#1a0a0a] text-red-100/80"}`}>{node}</div>
+                    <p className="text-xs text-red-200/50 italic">{note}</p>
+                  </div>
+                  {i < arr.length - 1 && (
+                    <div className="ml-5 flex flex-col items-center">
+                      <div className="h-5 w-px bg-red-700/40" />
+                      <svg width="10" height="8" viewBox="0 0 10 8" className="text-red-700/60 fill-current"><path d="M5 8L0 0h10z"/></svg>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Reveal>
+          {/* Flujo con AIDOH — verde eléctrico */}
+          <Reveal delay={100} className="overflow-hidden rounded-[2rem] border border-[var(--electric)]/20 bg-[#0f1f18] p-6 md:p-8">
+            <p className="mb-6 font-heading text-sm font-bold uppercase tracking-[0.22em] text-[var(--electric)]">Así se ve con AIDOH</p>
+            <div className="flex flex-col gap-0">
+              {[
+                ["Pregunta", "El sistema lo registra al instante"],
+                ["Respuesta inmediata", "Personalizada, sin esperar"],
+                ["Se perfila la intención", "¿Precio? ¿Cita? ¿Crédito? ¿Curiosidad?"],
+                ["Seguimiento automático", "El negocio no lo olvida"],
+                ["Agenda o avanza", "Con el paso correcto al momento correcto"],
+                ["Se mide", "Dónde llegó, por qué avanzó o por qué no"],
+              ].map(([node, note], i, arr) => (
+                <div key={node} className="flex flex-col items-start">
+                  <div className="flex items-center gap-4 w-full">
+                    <div className={`rounded-xl border px-4 py-3 font-heading text-sm font-bold ${i === arr.length - 1 ? "border-[var(--electric)]/60 bg-[var(--green-deep)] text-[var(--electric)]" : "border-[var(--electric)]/20 bg-[#0d1a13] text-[var(--electric)]/90"}`}>{node}</div>
+                    <p className="text-xs text-[var(--steel)]/60 italic">{note}</p>
+                  </div>
+                  {i < arr.length - 1 && (
+                    <div className="ml-5 flex flex-col items-center">
+                      <div className="h-5 w-px bg-[var(--electric)]/30" />
+                      <svg width="10" height="8" viewBox="0 0 10 8" className="fill-[#7EF0C3] opacity-50"><path d="M5 8L0 0h10z"/></svg>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
       </div>
     </section>
   );
 }
 
 export function LocalScenes() {
-  const scenes = [
-    ["Barbería", "Respondes tarde, pierdes citas, no reactivas y el dueño no sabe quién sí vuelve y quién ya se perdió."],
-    ["Cafetería", "Preguntan por menú, mesa o delivery, pero una visita buena no se convierte sola en recompra."],
-    ["Gimnasio", "El verdadero negocio no es solo la inscripción: es permanencia, asistencia, seguimiento y reactivación."],
-    ["Venta de casas", "Un lead no vale igual si busca vivir, invertir o usar crédito. Si todos reciben lo mismo, muchos se enfrían."],
+  const scenes: Array<[string, string, string]> = [
+    ["Barbería", "Respondes tarde, pierdes citas, no reactivas y el dueño no sabe quién sí vuelve y quién ya se perdió.", "El cliente quería cita. Le dijeron 'ahorita te confirmo'. Nunca lo confirmaron. La silla vacía te costó más de lo que parecía."],
+    ["Cafetería", "Preguntan por menú, mesa o delivery, pero una visita buena no se convierte sola en recompra.", "La gente sí pregunta por menú, mesa o delivery. El problema es que nadie conecta esa conversación con recompra o recurrencia."],
+    ["Gimnasio", "El verdadero negocio no es solo la inscripción: es permanencia, asistencia, seguimiento y reactivación.", "Pidió informes por WhatsApp, le mandaron precios, dijo 'lo checo' y nadie supo si se frenó por dinero, pena, tiempo o falta de acompañamiento."],
+    ["Venta de casas", "Un lead no vale igual si busca vivir, invertir o usar crédito. Si todos reciben lo mismo, muchos se enfrían.", "Vio un anuncio, pidió información de una casa, recibió un PDF genérico y nadie volvió a distinguir si buscaba vivir, invertir o usar crédito."],
   ];
   return (
     <section id="escenas" className="bg-[var(--background)] px-5 py-24 lg:px-8">
@@ -306,9 +369,19 @@ export function LocalScenes() {
         <Reveal>
           <h2 className="max-w-4xl font-heading text-4xl font-bold tracking-[-0.04em] text-[var(--bone)] md:text-6xl">Escenas donde el dinero se escapa sin hacer ruido.</h2>
         </Reveal>
+        {/* @section: owner-illustration */}
+        <Reveal delay={80} className="mt-10 overflow-hidden rounded-[2rem] border border-[var(--electric)]/15">
+          <img src={ownerDashboardImage} alt="Dueño de negocio leyendo sus datos operativos en pantalla — AIDOH" className="h-[22rem] w-full object-cover object-center opacity-85 md:h-[32rem]" />
+          <div className="bg-[#0D1117]/92 px-6 py-5 backdrop-blur-sm">
+            <p className="font-heading text-lg font-bold text-[var(--bone)]">Cuando ves tus datos, dejas de adivinar.</p>
+            <p className="mt-1 text-sm text-[var(--steel)]">Esta es la diferencia entre operar a ciegas y operar con control.</p>
+          </div>
+        </Reveal>
         <div className="mt-14 grid gap-5 lg:grid-cols-12">
           {scenes.map((s, i) => (
             <Reveal key={s[0]} delay={i * 110} className={cn("rounded-[2rem] border border-white/10 bg-[var(--surface)] p-7 transition hover:-translate-y-1 hover:border-[var(--electric)]/35", i === 0 && "lg:col-span-5 lg:row-span-2", i === 1 && "lg:col-span-7", i === 2 && "lg:col-span-7", i === 3 && "lg:col-span-12")}>
+              {/* quote scene */}
+              <blockquote className="mb-6 border-l-[3px] border-[var(--electric)] bg-[#0D1117] px-4 py-4 italic text-sm leading-6 text-[var(--steel)]">{s[2]}</blockquote>
               <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--electric)]/25 bg-[var(--green-deep)]">
                 <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-[var(--electric)]" strokeWidth="1.8"><path d="M4 17c4-1 5-4 6-8 1 5 3 8 10 8"/><path d="M4 7h16"/></svg>
               </div>
@@ -447,6 +520,11 @@ export function DemoSelector() {
 export function BusinessIntelligence() {
   const metrics = [["Conversaciones revisadas", "128"], ["Tiempo de respuesta", "3m"], ["Clientes por reactivar", "31"], ["Dinero atorado", "visible"]];
   const rows = [["Seguimiento", "Barbería", "alto impacto"], ["Recurrencia", "Cafetería", "impacto claro"], ["Filtro", "Venta de casas", "línea real"]];
+  const stats = [
+    ["68%", "de los prospectos no reciben seguimiento después del primer mensaje"],
+    ["3x", "más probabilidad de cerrar si el seguimiento ocurre en los primeros 30 minutos"],
+    ["$0", "costo adicional de clientes que ya preguntaron y el negocio dejó ir"],
+  ];
   return (
     <section id="bi" className="bg-[var(--background)] px-5 py-24 lg:px-8">
       {/* @section: business-intelligence */}
@@ -455,7 +533,17 @@ export function BusinessIntelligence() {
           <p className="font-heading text-sm font-bold uppercase tracking-[0.25em] text-[var(--electric)]">Lo que empieza a aparecer cuando ordenas tu operación</p>
           <h2 className="mt-4 max-w-4xl font-heading text-4xl font-bold tracking-[-0.04em] text-[var(--bone)] md:text-6xl">Cuando dejas de improvisar, tu negocio empieza a hablar.</h2>
         </Reveal>
-        <div className="mt-12 rounded-[2rem] border border-white/10 bg-[var(--surface)] p-5 md:p-8">
+        {/* @section: stat-callouts */}
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {stats.map(([num, label]) => (
+            <Reveal key={num} className="rounded-[2rem] border border-[var(--electric)]/15 bg-[var(--surface)] p-6 text-center">
+              <p className="font-heading text-6xl font-bold text-[var(--electric)] md:text-7xl">{num}</p>
+              <p className="mt-4 text-sm leading-6 text-[var(--steel)]">{label}</p>
+            </Reveal>
+          ))}
+        </div>
+        <p className="mt-3 text-xs uppercase tracking-[0.14em] text-[var(--steel)]/55">Datos ilustrativos basados en patrones comunes de negocios locales. No representan resultados garantizados.</p>
+        <div className="mt-8 rounded-[2rem] border border-white/10 bg-[var(--surface)] p-5 md:p-8">
           <div className="grid gap-4 md:grid-cols-4">
             {metrics.map((m) => (
               <div key={m[0]} className="rounded-2xl bg-[#0D1117] p-5">
@@ -510,6 +598,13 @@ export function AudienceFilter() {
 export function Pricing() {
   return (
     <section id="pricing" className="bg-[var(--surface)] px-5 py-20 lg:px-8">
+      {/* @section: callout-b */}
+      <div className="mx-auto max-w-7xl mb-12">
+        <Reveal className="border-l-4 border-r-4 border-[var(--green-money)] bg-[#151B23] px-8 py-8 rounded-[2rem]">
+          <p className="font-heading text-3xl font-bold leading-tight text-[var(--bone)] md:text-4xl lg:text-5xl">Te sorprenderá que, aún sin tener más clientes, <span className="text-[var(--electric)]">PUEDES ENCONTRAR NUEVAS GANANCIAS</span> al conocer los detalles de operación de tu negocio.</p>
+          <p className="mt-5 text-lg leading-8 text-[var(--steel)]">El dinero no siempre viene de más publicidad. A veces ya está ahí. Solo nadie lo está viendo.</p>
+        </Reveal>
+      </div>
       {/* @section: pricing */}
       <div className="mx-auto max-w-7xl">
         <Reveal><h2 className="max-w-4xl font-heading text-4xl font-bold tracking-[-0.04em] text-[var(--bone)] md:text-6xl">Fácil de entrar. Real desde el primer día.</h2></Reveal>
