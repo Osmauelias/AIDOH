@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "src/App.tsx",
-  "generatedAt": "2026-07-14T01:28:34.792Z",
+  "generatedAt": "2026-07-14T00:56:07.607Z",
   "routes": [
     "/",
     "/auth",
