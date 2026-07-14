@@ -30,7 +30,7 @@ type LeadRow = {
   prioridad?: string;
 };
 
-function Navbar({ current }: { current: string }) {
+function Navbar({ current, onLogout }: { current: string; onLogout?: () => void }) {
   return (
     <header className="sticky top-0 z-50 border-b border-[rgba(216,200,174,.18)] bg-[#173C43]/95 backdrop-blur-md text-[#F6F3ED]">
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
@@ -42,6 +42,14 @@ function Navbar({ current }: { current: string }) {
           <Link to="/" className="hover:text-[#D8C8AE]">
             Landing
           </Link>
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="rounded-full border border-[#D8C8AE]/30 px-3 py-1 text-xs text-[#D8C8AE] hover:bg-[#D8C8AE]/10"
+            >
+              Cerrar sesión
+            </button>
+          )}
           <span className="rounded-full bg-[#D8C8AE]/20 px-3 py-1 text-xs text-[#D8C8AE]">
             {current}
           </span>
@@ -215,48 +223,122 @@ function ObjecionesChart({ objeciones, maxTotal }: { objeciones: { razon_no_comp
   );
 }
 
-export function ViaHabitaDashboard() {
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-  const [leads, setLeads] = useState<LeadRow[]>([]);
-  const [loading, setLoading] = useState(true);
+const ADMIN_KEY_STORAGE = "viahabita_admin_key";
+
+function AdminLogin({ onAuth }: { onAuth: (key: string) => void }) {
+  const [key, setKey] = useState("");
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const [metricsRes, leadsRes] = await Promise.all([
-          apiFetch("/via-habita/metrics", { auth: false }),
-          apiFetch("/via-habita/leads", { auth: false }),
-        ]);
-
-        if (!metricsRes.ok || !leadsRes.ok) {
-          setError("No se pudieron cargar los datos del dashboard.");
-          return;
-        }
-
-        const [metricsData, leadsData] = await Promise.all([
-          metricsRes.json() as Promise<DashboardMetrics>,
-          leadsRes.json() as Promise<{ leads: LeadRow[] }>,
-        ]);
-
-        setMetrics(metricsData);
-        setLeads(leadsData.leads || []);
-      } catch {
-        setError("Error de conexión con el servidor.");
-      } finally {
-        setLoading(false);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!key.trim()) {
+      setError("Ingresa tu clave de administrador.");
+      return;
+    }
+    try {
+      const res = await fetch(`${window.location.origin}/api/via-habita/metrics`, {
+        headers: { "X-Admin-Key": key.trim() }
+      });
+      if (res.ok) {
+        localStorage.setItem(ADMIN_KEY_STORAGE, key.trim());
+        onAuth(key.trim());
+      } else {
+        setError("Clave incorrecta. Intenta de nuevo.");
       }
-    })();
-  }, []);
+    } catch {
+      setError("No se pudo conectar con el servidor.");
+    }
+  };
+
+  return (
+    <main className="min-h-screen bg-[#0F1C1F] text-[#F6F3ED] flex items-center justify-center p-6">
+      <div className="w-full max-w-md rounded-[1.5rem] border border-[#D8C8AE]/20 bg-[#173C43] p-8">
+        <Logo dark />
+        <h1 className="mt-6 font-heading text-2xl text-[#F6F3ED]">Panel interno</h1>
+        <p className="mt-2 text-sm text-[#D8C8AE]/70">Ingresa tu clave de administrador para continuar.</p>
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <input
+            type="password"
+            placeholder="Clave de administrador"
+            value={key}
+            onChange={(e) => { setKey(e.target.value); setError(""); }}
+            className="w-full rounded-lg border border-[#D8C8AE]/25 bg-[#0F2A2F] px-4 py-3 text-sm text-[#F6F3ED] placeholder-[#D8C8AE]/40 focus:border-[#D8C8AE]/50 focus:outline-none"
+            autoFocus
+          />
+          {error && (
+            <p className="rounded-lg bg-[#9B3A3A]/15 px-4 py-2 text-sm text-[#F6D0D0]">{error}</p>
+          )}
+          <button
+            type="submit"
+            className="w-full rounded-lg bg-[#D8C8AE] px-4 py-3 text-sm font-semibold text-[#173C43] hover:bg-[#D8C8AE]/90"
+          >
+            Ingresar
+          </button>
+        </form>
+      </div>
+    </main>
+  );
+}
+
+export function ViaHabitaDashboard() {
+  const [adminKey, setAdminKey] = useState<string | null>(localStorage.getItem(ADMIN_KEY_STORAGE));
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [leads, setLeads] = useState<LeadRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const loadDashboard = async (key: string) => {
+    setLoading(true);
+    setError("");
+    try {
+      const headers: Record<string, string> = { "X-Admin-Key": key };
+      const [metricsRes, leadsRes] = await Promise.all([
+        apiFetch("/via-habita/metrics", { auth: false, headers }),
+        apiFetch("/via-habita/leads", { auth: false, headers }),
+      ]);
+
+      if (!metricsRes.ok || !leadsRes.ok) {
+        setError("No se pudieron cargar los datos del dashboard.");
+        return;
+      }
+
+      const [metricsData, leadsData] = await Promise.all([
+        metricsRes.json() as Promise<DashboardMetrics>,
+        leadsRes.json() as Promise<{ leads: LeadRow[] }>,
+      ]);
+
+      setMetrics(metricsData);
+      setLeads(leadsData.leads || []);
+    } catch {
+      setError("Error de conexión con el servidor.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (adminKey) {
+      loadDashboard(adminKey);
+    }
+  }, [adminKey]);
 
   const totalLeads = metrics?.total_leads ?? leads.length;
   const etapaEntries = metrics ? Object.entries(metrics.leads_por_etapa) : [];
   const maxEtapa = etapaEntries.reduce((m, [, v]) => Math.max(m, v), 0);
   const maxObjecion = metrics?.objeciones_top?.[0]?.total ?? 0;
 
+  if (!adminKey) {
+    return <AdminLogin onAuth={setAdminKey} />;
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem(ADMIN_KEY_STORAGE);
+    setAdminKey(null);
+  };
+
   return (
     <main className="min-h-screen bg-[#0F1C1F] text-[#F6F3ED]">
-      <Navbar current="Dashboard" />
+      <Navbar current="Dashboard" onLogout={handleLogout} />
 
       <div className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-8">
