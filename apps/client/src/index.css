@@ -1,93 +1,55 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Design System Definition — AIDOH
- * Premium dark commercial AI system, money clarity, operational precision.
- */
-
+/* @section: via-habita-design-system */
 :root {
-  --background: #0D1117;
-  --surface: #151B23;
-  --card: #151B23;
-  --green-deep: #183C34;
-  --green-money: #2E7D61;
-  --bone: #F4F0E8;
-  --steel: #B8C4D6;
-  --electric: #7EF0C3;
-  --primary: #2E7D61;
-  --accent: #7EF0C3;
-  --foreground: #F4F0E8;
-
-  --card-foreground: #F4F0E8;
-  --popover: #151B23;
-  --popover-foreground: #F4F0E8;
-  --primary-foreground: #07100d;
-  --secondary: #183C34;
-  --secondary-foreground: #F4F0E8;
-  --muted: #151B23;
-  --muted-foreground: #B8C4D6;
-  --accent-foreground: #07100d;
-  --destructive: #ef4444;
-  --destructive-foreground: #F4F0E8;
-  --border: rgba(184, 196, 214, 0.16);
-  --input: rgba(184, 196, 214, 0.18);
-  --ring: #7EF0C3;
-  --chart-1: #7EF0C3;
-  --chart-2: #2E7D61;
-  --chart-3: #B8C4D6;
-  --chart-4: #183C34;
-  --chart-5: #F4F0E8;
-  --sidebar: #151B23;
-  --sidebar-foreground: #F4F0E8;
-  --sidebar-primary: #2E7D61;
-  --sidebar-primary-foreground: #07100d;
-  --sidebar-accent: #183C34;
-  --sidebar-accent-foreground: #F4F0E8;
-  --sidebar-border: rgba(184, 196, 214, 0.16);
-  --sidebar-ring: #7EF0C3;
-  --radius: 1rem;
+  --background: #F6F3ED;
+  --surface: #FFFDF8;
+  --card: #FFFDF8;
+  --petrol: #173C43;
+  --sand: #D8C8AE;
+  --bone: #F6F3ED;
+  --sage: #647D68;
+  --graphite: #252A2B;
+  --primary: #173C43;
+  --accent: #D8C8AE;
+  --foreground: #252A2B;
+  --card-foreground: #252A2B;
+  --popover: #FFFDF8;
+  --popover-foreground: #252A2B;
+  --primary-foreground: #F6F3ED;
+  --secondary: #647D68;
+  --secondary-foreground: #F6F3ED;
+  --muted: #EFE7DA;
+  --muted-foreground: rgba(37, 42, 43, 0.68);
+  --accent-foreground: #173C43;
+  --destructive: #9f2f27;
+  --destructive-foreground: #F6F3ED;
+  --border: rgba(23, 60, 67, 0.16);
+  --input: rgba(23, 60, 67, 0.18);
+  --ring: #647D68;
+  --chart-1: #173C43;
+  --chart-2: #647D68;
+  --chart-3: #D8C8AE;
+  --chart-4: #252A2B;
+  --chart-5: #F6F3ED;
+  --sidebar: #173C43;
+  --sidebar-foreground: #F6F3ED;
+  --sidebar-primary: #D8C8AE;
+  --sidebar-primary-foreground: #173C43;
+  --sidebar-accent: #647D68;
+  --sidebar-accent-foreground: #F6F3ED;
+  --sidebar-border: rgba(216, 200, 174, 0.22);
+  --sidebar-ring: #D8C8AE;
+  --radius: 1.15rem;
   --font-sans: "Inter", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-heading: "Space Grotesk", "Inter", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-mono: "Space Grotesk", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-heading: "DM Serif Display", Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-.dark {
-  --background: #0D1117;
-  --foreground: #F4F0E8;
-  --card: #151B23;
-  --card-foreground: #F4F0E8;
-  --popover: #151B23;
-  --popover-foreground: #F4F0E8;
-  --primary: #2E7D61;
-  --primary-foreground: #07100d;
-  --secondary: #183C34;
-  --secondary-foreground: #F4F0E8;
-  --muted: #151B23;
-  --muted-foreground: #B8C4D6;
-  --accent: #7EF0C3;
-  --accent-foreground: #07100d;
-  --destructive: #ef4444;
-  --destructive-foreground: #F4F0E8;
-  --border: rgba(184, 196, 214, 0.16);
-  --input: rgba(184, 196, 214, 0.18);
-  --ring: #7EF0C3;
-  --chart-1: #7EF0C3;
-  --chart-2: #2E7D61;
-  --chart-3: #B8C4D6;
-  --chart-4: #183C34;
-  --chart-5: #F4F0E8;
-  --sidebar: #151B23;
-  --sidebar-foreground: #F4F0E8;
-  --sidebar-primary: #2E7D61;
-  --sidebar-primary-foreground: #07100d;
-  --sidebar-accent: #183C34;
-  --sidebar-accent-foreground: #F4F0E8;
-  --sidebar-border: rgba(184, 196, 214, 0.16);
-  --sidebar-ring: #7EF0C3;
-}
+.dark { color-scheme: dark; }
 
 @theme inline {
   --color-background: var(--background);
@@ -122,65 +84,35 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: "Inter", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-heading: "Space Grotesk", "Inter", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-mono: "Space Grotesk", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-
-  @keyframes accordion-down {
-    from { height: 0; }
-    to { height: var(--radix-accordion-content-height); }
-  }
-
-  @keyframes accordion-up {
-    from { height: var(--radix-accordion-content-height); }
-    to { height: 0; }
-  }
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
+  --font-mono: var(--font-mono);
 }
 
 @layer base {
   * { @apply border-border; }
-
-  html {
-    scroll-behavior: smooth;
-    background: var(--background);
-  }
-
-  body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-sans);
-    min-width: 320px;
-    overflow-x: hidden;
-  }
-
-  a, button { outline-color: var(--electric); }
+  html { scroll-behavior: smooth; background: var(--background); }
+  body { @apply bg-background text-foreground; font-family: var(--font-sans); min-width: 320px; overflow-x: hidden; }
+  ::selection { background: var(--sand); color: var(--petrol); }
+  a, button, input, textarea, select { outline-color: var(--sage); }
 }
 
 @layer utilities {
   .font-heading { font-family: var(--font-heading); }
-
-  .tech-grid {
-    background-image:
-      linear-gradient(rgba(126, 240, 195, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(126, 240, 195, 0.055) 1px, transparent 1px),
-      radial-gradient(circle at 22% 18%, rgba(46, 125, 97, 0.28), transparent 30%),
-      radial-gradient(circle at 80% 42%, rgba(126, 240, 195, 0.12), transparent 26%);
-    background-size: 72px 72px, 72px 72px, auto, auto;
-    mask-image: linear-gradient(to bottom, black, rgba(0,0,0,.82), transparent 96%);
-  }
+  .via-container { width: min(1120px, calc(100% - 32px)); margin-inline: auto; }
+  .section-pad { padding-block: clamp(4.5rem, 8vw, 7.5rem); }
+  .petrol-panel { background: var(--petrol); color: var(--bone); }
+  .soft-card { background: rgba(255,253,248,.78); border: 1px solid rgba(23,60,67,.14); box-shadow: 0 20px 60px rgba(23,60,67,.08); }
+  .route-line { background-image: linear-gradient(90deg, transparent, rgba(216,200,174,.55), transparent); }
+  .fade-in { animation: viaFade .75s ease both; }
+  @keyframes viaFade { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-  }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
 }
