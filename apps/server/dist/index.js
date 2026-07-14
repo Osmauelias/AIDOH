@@ -3766,8 +3766,8 @@ var handleKeyObject = (keyObject, alg$1) => {
 	cache$1 ||= /* @__PURE__ */ new WeakMap();
 	let cached$1 = cache$1.get(keyObject);
 	if (cached$1?.[alg$1]) return cached$1[alg$1];
-	const isPublic$4 = keyObject.type === "public";
-	const extractable = isPublic$4 ? true : false;
+	const isPublic$5 = keyObject.type === "public";
+	const extractable = isPublic$5 ? true : false;
 	let cryptoKey;
 	if (keyObject.asymmetricKeyType === "x25519") {
 		switch (alg$1) {
@@ -3777,18 +3777,18 @@ var handleKeyObject = (keyObject, alg$1) => {
 			case "ECDH-ES+A256KW": break;
 			default: throw new TypeError(unusableForAlg);
 		}
-		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, isPublic$4 ? [] : ["deriveBits"]);
+		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, isPublic$5 ? [] : ["deriveBits"]);
 	}
 	if (keyObject.asymmetricKeyType === "ed25519") {
 		if (alg$1 !== "EdDSA" && alg$1 !== "Ed25519") throw new TypeError(unusableForAlg);
-		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic$4 ? "verify" : "sign"]);
+		cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic$5 ? "verify" : "sign"]);
 	}
 	switch (keyObject.asymmetricKeyType) {
 		case "ml-dsa-44":
 		case "ml-dsa-65":
 		case "ml-dsa-87":
 			if (alg$1 !== keyObject.asymmetricKeyType.toUpperCase()) throw new TypeError(unusableForAlg);
-			cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic$4 ? "verify" : "sign"]);
+			cryptoKey = keyObject.toCryptoKey(keyObject.asymmetricKeyType, extractable, [isPublic$5 ? "verify" : "sign"]);
 	}
 	if (keyObject.asymmetricKeyType === "rsa") {
 		let hash$1;
@@ -3816,11 +3816,11 @@ var handleKeyObject = (keyObject, alg$1) => {
 		if (alg$1.startsWith("RSA-OAEP")) return keyObject.toCryptoKey({
 			name: "RSA-OAEP",
 			hash: hash$1
-		}, extractable, isPublic$4 ? ["encrypt"] : ["decrypt"]);
+		}, extractable, isPublic$5 ? ["encrypt"] : ["decrypt"]);
 		cryptoKey = keyObject.toCryptoKey({
 			name: alg$1.startsWith("PS") ? "RSA-PSS" : "RSASSA-PKCS1-v1_5",
 			hash: hash$1
-		}, extractable, [isPublic$4 ? "verify" : "sign"]);
+		}, extractable, [isPublic$5 ? "verify" : "sign"]);
 	}
 	if (keyObject.asymmetricKeyType === "ec") {
 		const namedCurve = new Map([
@@ -3837,11 +3837,11 @@ var handleKeyObject = (keyObject, alg$1) => {
 		if (expectedCurve[alg$1] && namedCurve === expectedCurve[alg$1]) cryptoKey = keyObject.toCryptoKey({
 			name: "ECDSA",
 			namedCurve
-		}, extractable, [isPublic$4 ? "verify" : "sign"]);
+		}, extractable, [isPublic$5 ? "verify" : "sign"]);
 		if (alg$1.startsWith("ECDH-ES")) cryptoKey = keyObject.toCryptoKey({
 			name: "ECDH",
 			namedCurve
-		}, extractable, isPublic$4 ? [] : ["deriveBits"]);
+		}, extractable, isPublic$5 ? [] : ["deriveBits"]);
 	}
 	if (!cryptoKey) throw new TypeError(unusableForAlg);
 	if (!cached$1) cache$1.set(keyObject, { [alg$1]: cryptoKey });
@@ -44808,7 +44808,7 @@ var leads_route_exports = /* @__PURE__ */ __export({
 	leadsRouter: () => leadsRouter
 }, 1);
 const leadsRouter = new Hono();
-var LeadSchema = object$1({
+var LeadSchema$1 = object$1({
 	nombre: string$2().trim().min(1),
 	negocio: string$2().trim().min(1),
 	vertical: string$2().trim().min(1),
@@ -44826,7 +44826,7 @@ var LeadSchema = object$1({
 	comentarios_libres: string$2().trim().optional().default(""),
 	source_page: string$2().trim().optional().default("landing")
 });
-function databaseStatus$1(error$51) {
+function databaseStatus$2(error$51) {
 	if (error$51.status === 503) return 503;
 	return 502;
 }
@@ -44847,7 +44847,7 @@ function toFlag(value) {
 	].includes(normalized) ? 1 : 0;
 }
 async function createLead(c) {
-	const parsed = LeadSchema.safeParse(await c.req.json().catch(() => null));
+	const parsed = LeadSchema$1.safeParse(await c.req.json().catch(() => null));
 	if (!parsed.success) return c.json({
 		ok: false,
 		error: "MISSING_REQUIRED_FIELDS",
@@ -44896,25 +44896,25 @@ async function createLead(c) {
 			id: Number(result.lastInsertRowid)
 		}, 200);
 	} catch (error$51) {
-		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus$1(error$51));
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus$2(error$51));
 		throw error$51;
 	}
 }
-async function listLeads(c) {
+async function listLeads$1(c) {
 	const adminKey = c.env?.ADMIN_KEY;
 	if (!adminKey || c.req.header("X-Admin-Key") !== adminKey) return c.json(apiFailure("UNAUTHORIZED", "Admin key required"), 401);
 	try {
 		const result = await executeSql("SELECT * FROM leads ORDER BY created_at DESC, id DESC");
 		return c.json(apiSuccess({ leads: result.rows }), 200);
 	} catch (error$51) {
-		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus$1(error$51));
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus$2(error$51));
 		throw error$51;
 	}
 }
 leadsRouter.post("", createLead);
 leadsRouter.post("/", createLead);
-leadsRouter.get("", listLeads);
-leadsRouter.get("/", listLeads);
+leadsRouter.get("", listLeads$1);
+leadsRouter.get("/", listLeads$1);
 var StorageError = class extends Error {
 	constructor(code, message$1, status = 500) {
 		super(message$1);
@@ -45274,7 +45274,7 @@ const todosRouter = new Hono();
 function unauthorized() {
 	return apiFailure("UNAUTHORIZED", "Unauthorized");
 }
-function databaseStatus(error$51) {
+function databaseStatus$1(error$51) {
 	if (error$51.status === 404) return 404;
 	if (error$51.status === 503) return 503;
 	return 502;
@@ -45288,7 +45288,7 @@ var listHandler = async (c) => {
 	try {
 		return c.json(apiSuccess({ todos: await listTodos(user$1.id) }), 200);
 	} catch (error$51) {
-		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus(error$51));
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus$1(error$51));
 		throw error$51;
 	}
 };
@@ -45300,7 +45300,7 @@ var createHandler = async (c) => {
 	try {
 		return c.json(apiSuccess({ todo: await createTodo(user$1.id, parsed.data) }), 200);
 	} catch (error$51) {
-		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus(error$51));
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus$1(error$51));
 		throw error$51;
 	}
 };
@@ -45318,7 +45318,7 @@ todosRouter.patch("/:id", async (c) => {
 	try {
 		return c.json(apiSuccess({ todo: await updateTodo(user$1.id, id, parsed.data) }), 200);
 	} catch (error$51) {
-		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus(error$51));
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus$1(error$51));
 		throw error$51;
 	}
 });
@@ -45330,10 +45330,255 @@ todosRouter.delete("/:id", async (c) => {
 		await deleteTodo(user$1.id, id);
 		return c.json(apiSuccess({ id }), 200);
 	} catch (error$51) {
-		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus(error$51));
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus$1(error$51));
 		throw error$51;
 	}
 });
+var via_habita_route_exports = /* @__PURE__ */ __export({
+	isPublic: () => true,
+	viaHabitaRouter: () => viaHabitaRouter
+}, 1);
+const viaHabitaRouter = new Hono();
+var LeadSchema = object$1({
+	nombre: string$2().trim().min(1),
+	whatsapp: string$2().trim().min(8),
+	email_optional: string$2().trim().optional().default(""),
+	ciudad_zona: string$2().trim().min(1),
+	motivo_compra: string$2().trim().optional().default(""),
+	tipo_inmueble: string$2().trim().optional().default(""),
+	etapa_actual: string$2().trim().optional().default(""),
+	presupuesto_rango: string$2().trim().optional().default(""),
+	tiene_credito: string$2().trim().optional().default(""),
+	tipo_credito: array$1(string$2()).optional().default([]),
+	credito_individual_o_conyugal: string$2().trim().optional().default(""),
+	broker_contactado: string$2().trim().optional().default(""),
+	estatus_evaluacion: string$2().trim().optional().default(""),
+	bloqueo_principal: array$1(string$2()).optional().default([]),
+	miedo_principal: string$2().trim().optional().default(""),
+	desarrollos_visitados: string$2().trim().optional().default(""),
+	que_no_gusto_otros: string$2().trim().optional().default(""),
+	razon_no_compra: string$2().trim().optional().default(""),
+	condicion_para_comprar: string$2().trim().optional().default(""),
+	comentario_libre: string$2().trim().optional().default(""),
+	consent_privacy: boolean$2(),
+	consent_whatsapp: boolean$2().optional().default(true),
+	utm_source: string$2().trim().optional().default(""),
+	utm_medium: string$2().trim().optional().default(""),
+	utm_campaign: string$2().trim().optional().default(""),
+	utm_content: string$2().trim().optional().default(""),
+	utm_term: string$2().trim().optional().default("")
+});
+function databaseStatus(error$51) {
+	return error$51.status === 503 ? 503 : error$51.status === 404 ? 404 : 502;
+}
+function adminAuthorized(c) {
+	const adminKey = c.env?.ADMIN_KEY;
+	return Boolean(adminKey && c.req.header("X-Admin-Key") === adminKey);
+}
+function normalizeWhatsapp(value) {
+	return value.replace(/[^0-9]/g, "");
+}
+function csv(values) {
+	return values.filter(Boolean).join(", ");
+}
+function plusOneDayIsoDate() {
+	const date$4 = /* @__PURE__ */ new Date();
+	date$4.setUTCDate(date$4.getUTCDate() + 1);
+	return date$4.toISOString().slice(0, 10);
+}
+async function getOrCreateCampaign(input) {
+	if (!Boolean(input.utm_source || input.utm_medium || input.utm_campaign || input.utm_content || input.utm_term)) return null;
+	const result = await executeSql(`INSERT INTO campaigns (business_id, name, source, medium, campaign, content, term)
+     VALUES (1, ?, ?, ?, ?, ?, ?)`, [
+		input.utm_campaign || input.utm_source || "landing",
+		input.utm_source,
+		input.utm_medium,
+		input.utm_campaign,
+		input.utm_content,
+		input.utm_term
+	]);
+	return Number(result.lastInsertRowid);
+}
+async function upsertLead(c) {
+	const parsed = LeadSchema.safeParse(await c.req.json().catch(() => null));
+	if (!parsed.success || !parsed.data.consent_privacy) return c.json(apiFailure("INVALID_INPUT", "Nombre, WhatsApp, ciudad/zona y aviso de privacidad son obligatorios."), 422);
+	const input = parsed.data;
+	const whatsapp = normalizeWhatsapp(input.whatsapp);
+	if (whatsapp.length < 10) return c.json(apiFailure("INVALID_INPUT", "El WhatsApp debe incluir al menos 10 dígitos."), 422);
+	try {
+		const campaignId = await getOrCreateCampaign(input);
+		const existing = await executeSql("SELECT id, external_id FROM leads WHERE whatsapp = ? ORDER BY id DESC LIMIT 1", [whatsapp]);
+		const duplicate = existing.rows.length > 0;
+		let leadId;
+		let externalId;
+		if (duplicate) {
+			const row = existing.rows[0];
+			leadId = Number(row.id);
+			externalId = String(row.external_id || `vh-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
+			await executeSql(`UPDATE leads SET campaign_id = ?, nombre = ?, email_optional = ?, ciudad_zona = ?, consent_privacy = ?, consent_whatsapp = ?, updated_at = datetime('now') WHERE id = ?`, [
+				campaignId,
+				input.nombre,
+				input.email_optional,
+				input.ciudad_zona,
+				input.consent_privacy ? 1 : 0,
+				input.consent_whatsapp ? 1 : 0,
+				leadId
+			]);
+		} else {
+			externalId = `vh-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+			const inserted = await executeSql(`INSERT INTO leads (external_id, business_id, development_id, campaign_id, nombre, whatsapp, email_optional, ciudad_zona, origen, landing_id, consent_privacy, consent_whatsapp, status)
+         VALUES (?, 1, 1, ?, ?, ?, ?, ?, 'landing', 'via-habita-v1', ?, ?, 'nuevo')`, [
+				externalId,
+				campaignId,
+				input.nombre,
+				whatsapp,
+				input.email_optional,
+				input.ciudad_zona,
+				input.consent_privacy ? 1 : 0,
+				input.consent_whatsapp ? 1 : 0
+			]);
+			leadId = Number(inserted.lastInsertRowid);
+		}
+		await executeSql(`INSERT INTO lead_profile (lead_id, motivo_compra, tipo_inmueble, etapa_actual, presupuesto_rango, decisores, influencia_pareja, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+       ON CONFLICT(lead_id) DO UPDATE SET motivo_compra=excluded.motivo_compra, tipo_inmueble=excluded.tipo_inmueble, etapa_actual=excluded.etapa_actual, presupuesto_rango=excluded.presupuesto_rango, decisores=excluded.decisores, influencia_pareja=excluded.influencia_pareja, updated_at=datetime('now')`, [
+			leadId,
+			input.motivo_compra,
+			input.tipo_inmueble,
+			input.etapa_actual,
+			input.presupuesto_rango,
+			input.credito_individual_o_conyugal,
+			input.credito_individual_o_conyugal === "Con pareja" ? 1 : 0
+		]);
+		await executeSql(`INSERT INTO credit_profile (lead_id, tiene_credito, tipo_credito, credito_individual_o_conyugal, broker_contactado, estatus_evaluacion, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+       ON CONFLICT(lead_id) DO UPDATE SET tiene_credito=excluded.tiene_credito, tipo_credito=excluded.tipo_credito, credito_individual_o_conyugal=excluded.credito_individual_o_conyugal, broker_contactado=excluded.broker_contactado, estatus_evaluacion=excluded.estatus_evaluacion, updated_at=datetime('now')`, [
+			leadId,
+			input.tiene_credito,
+			csv(input.tipo_credito),
+			input.credito_individual_o_conyugal,
+			input.broker_contactado === "Sí" ? 1 : 0,
+			input.estatus_evaluacion
+		]);
+		await executeSql(`INSERT INTO journey_context (lead_id, desarrollos_visitados, que_no_gusto_otros, razon_no_compra, bloqueo_principal, miedo_principal, objecion_actual, condicion_para_comprar, comentario_libre, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+       ON CONFLICT(lead_id) DO UPDATE SET desarrollos_visitados=excluded.desarrollos_visitados, que_no_gusto_otros=excluded.que_no_gusto_otros, razon_no_compra=excluded.razon_no_compra, bloqueo_principal=excluded.bloqueo_principal, miedo_principal=excluded.miedo_principal, objecion_actual=excluded.objecion_actual, condicion_para_comprar=excluded.condicion_para_comprar, comentario_libre=excluded.comentario_libre, updated_at=datetime('now')`, [
+			leadId,
+			input.desarrollos_visitados,
+			input.que_no_gusto_otros,
+			input.razon_no_compra,
+			csv(input.bloqueo_principal),
+			input.miedo_principal,
+			input.razon_no_compra,
+			input.condicion_para_comprar,
+			input.comentario_libre
+		]);
+		await executeSql(`INSERT INTO follow_up (lead_id, responsable, siguiente_accion, fecha_siguiente_contacto, prioridad, estatus_lead, comentario)
+       VALUES (?, 'vendedor', 'Primer contacto', ?, 'alta', 'nuevo', ?)`, [
+			leadId,
+			plusOneDayIsoDate(),
+			duplicate ? "Lead duplicado actualizado desde landing" : "Lead creado desde landing"
+		]);
+		await executeSql("INSERT INTO events (business_id, lead_id, event_type, event_source, metadata_json) VALUES (1, ?, 'form.completed', 'landing', ?)", [leadId, JSON.stringify({ campaign_id: campaignId })]);
+		await executeSql("INSERT INTO events (business_id, lead_id, event_type, event_source, metadata_json) VALUES (1, ?, ?, 'landing', ?)", [
+			leadId,
+			duplicate ? "lead.updated" : "lead.created",
+			JSON.stringify({
+				is_duplicate: duplicate,
+				campaign_id: campaignId
+			})
+		]);
+		return c.json({
+			ok: true,
+			lead_id: leadId,
+			external_id: externalId,
+			is_duplicate: duplicate
+		}, 200);
+	} catch (error$51) {
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus(error$51));
+		throw error$51;
+	}
+}
+async function listLeads(c) {
+	if (!adminAuthorized(c)) return c.json(apiFailure("UNAUTHORIZED", "Admin key required"), 401);
+	try {
+		const result = await executeSql(`SELECT l.*, lp.motivo_compra, lp.tipo_inmueble, lp.etapa_actual, lp.presupuesto_rango,
+              cp.tiene_credito, cp.tipo_credito, cp.credito_individual_o_conyugal, cp.estatus_evaluacion,
+              jc.bloqueo_principal, jc.miedo_principal, jc.razon_no_compra, jc.condicion_para_comprar,
+              fu.siguiente_accion, fu.fecha_siguiente_contacto, fu.prioridad
+       FROM leads l
+       LEFT JOIN lead_profile lp ON lp.lead_id = l.id
+       LEFT JOIN credit_profile cp ON cp.lead_id = l.id
+       LEFT JOIN journey_context jc ON jc.lead_id = l.id
+       LEFT JOIN follow_up fu ON fu.lead_id = l.id
+       ORDER BY l.created_at DESC, l.id DESC`);
+		return c.json(apiSuccess({ leads: result.rows }), 200);
+	} catch (error$51) {
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus(error$51));
+		throw error$51;
+	}
+}
+async function leadSummary(c) {
+	const id = c.req.param("id") || "";
+	try {
+		const result = await executeSql(`SELECT l.nombre, lp.motivo_compra, cp.tipo_credito, cp.credito_individual_o_conyugal, jc.razon_no_compra, jc.bloqueo_principal, fu.siguiente_accion, fu.prioridad
+       FROM leads l
+       LEFT JOIN lead_profile lp ON lp.lead_id = l.id
+       LEFT JOIN credit_profile cp ON cp.lead_id = l.id
+       LEFT JOIN journey_context jc ON jc.lead_id = l.id
+       LEFT JOIN follow_up fu ON fu.lead_id = l.id
+       WHERE l.id = ?
+       ORDER BY fu.id DESC LIMIT 1`, [id]);
+		if (!result.rows[0]) return c.json(apiFailure("NOT_FOUND", "Lead not found"), 404);
+		const row = result.rows[0];
+		const credito = [row.tipo_credito, row.credito_individual_o_conyugal].filter(Boolean).join(" + ") || "Por revisar";
+		const objecion = row.razon_no_compra || row.bloqueo_principal || "Por aclarar";
+		return c.json({
+			nombre: row.nombre,
+			motivo: row.motivo_compra || "Por definir",
+			credito,
+			objecion,
+			siguiente_accion: row.siguiente_accion || "Primer contacto",
+			prioridad: row.prioridad || "alta",
+			resumen_vendedor: `${row.nombre} busca ${row.motivo_compra || "casa"}. Crédito: ${credito}. Punto a resolver: ${objecion}. Siguiente acción: ${row.siguiente_accion || "Primer contacto"}.`
+		}, 200);
+	} catch (error$51) {
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus(error$51));
+		throw error$51;
+	}
+}
+async function metrics(c) {
+	if (!adminAuthorized(c)) return c.json(apiFailure("UNAUTHORIZED", "Admin key required"), 401);
+	try {
+		const [total, origen, etapa, estudios, pendientes, objeciones] = await Promise.all([
+			executeSql("SELECT COUNT(*) as total FROM leads"),
+			executeSql("SELECT origen, COUNT(*) as total FROM leads GROUP BY origen"),
+			executeSql("SELECT etapa_actual, COUNT(*) as total FROM lead_profile GROUP BY etapa_actual"),
+			executeSql("SELECT COUNT(*) as total FROM credit_profile WHERE estatus_evaluacion IN ('En proceso', 'Ya fui evaluado', 'Tengo preautorización')"),
+			executeSql("SELECT COUNT(*) as total FROM follow_up WHERE completed_at IS NULL"),
+			executeSql("SELECT razon_no_compra, COUNT(*) as total FROM journey_context WHERE razon_no_compra IS NOT NULL AND razon_no_compra <> '' GROUP BY razon_no_compra ORDER BY total DESC LIMIT 5")
+		]);
+		const toMap = (rows) => Object.fromEntries(rows.map((r) => {
+			const row = r;
+			return [String(row.origen || row.etapa_actual || "Sin dato"), Number(row.total || 0)];
+		}));
+		return c.json({
+			total_leads: Number(total.rows[0]?.total || 0),
+			leads_por_origen: toMap(origen.rows),
+			leads_por_etapa: toMap(etapa.rows),
+			estudios_credito: Number(estudios.rows[0]?.total || 0),
+			seguimientos_pendientes: Number(pendientes.rows[0]?.total || 0),
+			objeciones_top: objeciones.rows
+		}, 200);
+	} catch (error$51) {
+		if (error$51 instanceof DatabaseError) return c.json(apiFailure(error$51.code, error$51.message), databaseStatus(error$51));
+		throw error$51;
+	}
+}
+viaHabitaRouter.post("/leads", upsertLead);
+viaHabitaRouter.get("/leads", listLeads);
+viaHabitaRouter.get("/leads/:id/summary", leadSummary);
+viaHabitaRouter.get("/metrics", metrics);
 var ALWAYS_PUBLIC_PREFIXES = ["/api/auth"];
 function isHono(value) {
 	return typeof value === "object" && value !== null && typeof value.fetch === "function" && typeof value.route === "function" && typeof value.use === "function";
@@ -45355,7 +45600,8 @@ try {
 		"../routes/leads.route.ts": leads_route_exports,
 		"../routes/storage.route.ts": storage_route_exports,
 		"../routes/third-party-google-auth.route.ts": third_party_google_auth_route_exports,
-		"../routes/todos.route.ts": todos_route_exports
+		"../routes/todos.route.ts": todos_route_exports,
+		"../routes/via-habita.route.ts": via_habita_route_exports
 	};
 } catch {
 	const routesDir = resolve(dirname(fileURLToPath(import.meta.url)), "../routes");
