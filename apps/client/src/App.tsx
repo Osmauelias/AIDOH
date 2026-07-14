@@ -6,6 +6,7 @@ import AuthPage from "./pages/auth/Index";
 import Index from "./pages/home/Index";
 import NotFound from "./pages/not-found/Index";
 import { Gracias, Privacidad } from "@/components/ViaHabitaExperience";
+import { ViaHabitaDashboard } from "@/components/ViaHabitaDashboard";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/gracias" element={<Gracias />} />
           <Route path="/privacidad" element={<Privacidad />} />
+          <Route path="/dashboard" element={<ViaHabitaDashboard />} />
           <Route path="/auth" element={<AuthPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

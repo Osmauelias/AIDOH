@@ -387,16 +387,6 @@ export function LocalScenes() {
               </div>
               <p className="font-heading text-sm uppercase tracking-[0.2em] text-[var(--steel)]">{s[0]}</p>
               <p className="mt-6 text-xl leading-8 text-[var(--steel)]">{s[1]}</p>
-              {i === 3 && (
-                <a
-                  href="https://viahabita.skywork.website"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-7 inline-flex items-center gap-2 rounded-full border border-[var(--electric)]/50 bg-[var(--green-deep)] px-5 py-3 font-heading text-sm font-semibold text-[var(--electric)] transition hover:bg-[var(--electric)] hover:text-[#0D1117]"
-                >
-                  Ver Vía Habita →
-                </a>
-              )}
             </Reveal>
           ))}
         </div>
