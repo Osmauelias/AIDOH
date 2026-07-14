@@ -1,5 +1,5 @@
-import { ViaHabitaLanding } from "@/components/ViaHabitaExperience";
+import { AidohLanding } from "@/components/AidohExperience";
 
-const Index = () => <ViaHabitaLanding />;
+const Index = () => <AidohLanding />;
 
 export default Index;

@@ -780,3 +780,25 @@ function TextareaField({ id, label, value, onChange, placeholder }: { id: string
 function RadioField({ label, name, value, options, onChange }: { label: string; name: string; value: string; options: string[]; onChange: (value: string) => void }) {
   return <div><p className="mb-3 text-sm text-[var(--steel)]">{label}</p><div className="grid gap-2 sm:grid-cols-3">{options.map(opt => <label key={opt} className={cn("flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition", value === opt ? "border-[var(--electric)]/50 bg-[var(--green-deep)] text-[var(--bone)]" : "border-white/10 bg-[var(--surface)] text-[var(--steel)] hover:border-[var(--electric)]/25")}><input type="radio" name={name} value={opt} checked={value === opt} onChange={() => onChange(opt)} className="sr-only" /><span className={cn("h-3 w-3 shrink-0 rounded-full border", value === opt ? "border-[var(--electric)] bg-[var(--electric)]" : "border-[var(--steel)]/40")} />{opt}</label>)}</div></div>;
 }
+
+export function AidohLanding() {
+  return (
+    <>
+      <Navbar />
+      <Hero />
+      <EconomicCost />
+      <JourneyLie />
+      <WorkProcess />
+      <LocalScenes />
+      <GoodJourney />
+      <Capabilities />
+      <DemoSelector />
+      <BusinessIntelligence />
+      <Differentiation />
+      <AudienceFilter />
+      <Pricing />
+      <FutureLayer />
+      <FinalCta />
+    </>
+  );
+}
