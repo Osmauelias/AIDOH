@@ -41,8 +41,9 @@ function databaseStatus(error: DatabaseError) {
 }
 
 function adminAuthorized(c: Context) {
-  const adminKey = (c.env as { ADMIN_KEY?: string } | undefined)?.ADMIN_KEY;
-  return Boolean(adminKey && c.req.header("X-Admin-Key") === adminKey);
+  const envKey = (c.env as { ADMIN_KEY?: string } | undefined)?.ADMIN_KEY;
+  const adminKey = envKey ?? "142536"; // fallback temporal — cambiar en Variables de Entorno > ADMIN_KEY
+  return Boolean(c.req.header("X-Admin-Key") === adminKey);
 }
 
 function normalizeWhatsapp(value: string) {
