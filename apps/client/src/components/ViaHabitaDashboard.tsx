@@ -228,6 +228,7 @@ const ADMIN_KEY_STORAGE = "viahabita_admin_key";
 function AdminLogin({ onAuth }: { onAuth: (key: string) => void }) {
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -235,8 +236,11 @@ function AdminLogin({ onAuth }: { onAuth: (key: string) => void }) {
       setError("Ingresa tu clave de administrador.");
       return;
     }
+    setLoading(true);
+    setError("");
     try {
-      const res = await fetch(`${window.location.origin}/api/via-habita/metrics`, {
+      const res = await apiFetch("/via-habita/metrics", {
+        auth: false,
         headers: { "X-Admin-Key": key.trim() }
       });
       if (res.ok) {
@@ -247,6 +251,8 @@ function AdminLogin({ onAuth }: { onAuth: (key: string) => void }) {
       }
     } catch {
       setError("No se pudo conectar con el servidor.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -270,9 +276,10 @@ function AdminLogin({ onAuth }: { onAuth: (key: string) => void }) {
           )}
           <button
             type="submit"
-            className="w-full rounded-lg bg-[#D8C8AE] px-4 py-3 text-sm font-semibold text-[#173C43] hover:bg-[#D8C8AE]/90"
+            disabled={loading}
+            className="w-full rounded-lg bg-[#D8C8AE] px-4 py-3 text-sm font-semibold text-[#173C43] hover:bg-[#D8C8AE]/90 disabled:opacity-50"
           >
-            Ingresar
+            {loading ? "Verificando..." : "Ingresar"}
           </button>
         </form>
       </div>
