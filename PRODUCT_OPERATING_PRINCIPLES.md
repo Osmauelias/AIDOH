@@ -78,3 +78,40 @@ Within <24h during MVP-002 Content Factory work:
 If the simple test answers the operational question sufficiently, stop.
 
 Do not continue diagnosing merely because more explanation is possible.
+
+---
+
+## Canonical Rule — SUFFICIENT NAVIGATION
+
+AIDOH products do not need a complete explanation of the whole problem space before moving.
+
+The product team needs enough map to:
+
+- make the current decision safely;
+- complete the next useful step;
+- preserve operator and system capacity;
+- retain room to change direction when weak signals or new evidence appear.
+
+Operational question:
+
+> **Do we know enough to navigate the next segment well, while preserving room to adapt?**
+
+If yes, move.
+
+If not, identify the smallest missing uncertainty that could materially change the decision and investigate only that.
+
+### Stop rule
+
+Do not continue diagnosis solely to achieve explanatory completeness.
+
+Continue only when remaining uncertainty can materially change:
+- safety;
+- integrity;
+- cost;
+- direction;
+- reversibility;
+- or the next decision.
+
+Relationship:
+`SIMPLEST REAL-WORLD TEST FIRST → SUFFICIENT NAVIGATION → MOVE / ADAPT`.
+
